@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">API Chat</string>
+    <string name="chat_SendMessage">Отправить</string>
+    <string name="chat_IsTyping">печатает...</string>
+    <string name="chat_Message">Сообщение</string>
+</resources>

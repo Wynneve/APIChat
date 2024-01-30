@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">API Chat</string>
+    <string name="chat_SendMessage">Send</string>
+    <string name="chat_IsTyping">is typing...</string>
+    <string name="chat_Message">Message</string>
+</resources>

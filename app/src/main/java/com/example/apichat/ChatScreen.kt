@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.*
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.*
 import androidx.compose.ui.unit.*
 import com.example.apichat.ui.theme.APIChatTheme
@@ -30,7 +29,6 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 import java.text.DateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(chat: Chat) {
     chat.scrollState = rememberScrollState()
@@ -76,53 +74,27 @@ fun ChatScreen(chat: Chat) {
                 .padding(horizontal = 10.dp, vertical = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            Box(
-                modifier = Modifier
+            CustomizableTextField(
+                boxModifier = Modifier
                     .weight(1f)
-                    .heightIn(min = 40.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.background,
-                        shape = RoundedCornerShape(5.dp),
-                    )
-            ) {
-                BasicTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterStart),
-                    value = chat.currentMessage.value,
-                    onValueChange = chat::onMessageType,
-                    textStyle = MaterialTheme.typography.displayMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                    decorationBox = { innerTextField ->
-                        TextFieldDefaults.DecorationBox(
-                            value = chat.currentMessage.value,
-                            innerTextField = innerTextField,
-                            enabled = true,
-                            singleLine = false,
-                            visualTransformation = VisualTransformation.None,
-                            interactionSource = MutableInteractionSource(),
-                            placeholder = {
-                                if (chat.currentMessage.value.isEmpty()) {
-                                    Text(text = LocalContext.current.getString(R.string.chat_Message))
-                                }
-                            },
-                            contentPadding = PaddingValues(horizontal = 5.dp, vertical = 5.dp),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                focusedPlaceholderColor = colorPlaceholder,
-                                unfocusedPlaceholderColor = colorPlaceholder,
-                            ),
-                        )
-                    },
-                    minLines = 1,
-                    maxLines = 5,
-                )
-            }
+                    .heightIn(min = 40.dp),
+                backgroundColor = MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(5.dp),
+                textModifier = Modifier.fillMaxWidth(),
+                value = chat.currentMessage.value,
+                onValueChange = chat::onMessageType,
+                textStyle = MaterialTheme.typography.displayMedium,
+                textColor = MaterialTheme.colorScheme.onBackground,
+                cursorColor = MaterialTheme.colorScheme.onBackground,
+                placeholder = LocalContext.current.getString(R.string.chat_Message),
+                enabled = true,
+                singleLine = false,
+                horizontalPadding = 5.dp,
+                verticalPadding = 5.dp,
+                placeholderColor = colorPlaceholder,
+                minLines = 1,
+                maxLines = 5,
+            )
 
             Box(
                 modifier=Modifier

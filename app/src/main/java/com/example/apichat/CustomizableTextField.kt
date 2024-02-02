@@ -1,8 +1,11 @@
 package com.example.apichat
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -10,6 +13,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -28,7 +33,12 @@ import com.example.apichat.ui.theme.colorPlaceholder
 fun CustomizableTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
+    shape: Shape = RectangleShape,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    horizontalPadding: Dp = 0.dp,
+    verticalPadding: Dp = 0.dp,
+    boxModifier: Modifier = Modifier,
+    textModifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = MaterialTheme.typography.displayMedium,
@@ -42,44 +52,49 @@ fun CustomizableTextField(
     icon: ImageVector? = null,
     iconDescription: String = "",
     iconModifier: Modifier = Modifier,
-    shape: Shape = RectangleShape,
-    backgroundColor: Color = MaterialTheme.colorScheme.background,
-    horizontalPadding: Dp = 0.dp,
-    verticalPadding: Dp = 0.dp,
 ) {
-    BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        enabled = enabled,
-        readOnly = readOnly,
-        textStyle = textStyle.copy(
-            color = textColor,
-        ),
-        singleLine = singleLine,
-        minLines = minLines,
-        maxLines = maxLines,
-        cursorBrush = SolidColor(cursorColor),
-    ) { innerTextField ->
-        TextFieldDefaults.DecorationBox(
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = boxModifier
+            .background(backgroundColor, shape)
+            .padding(horizontal=horizontalPadding, vertical=verticalPadding)
+    ) {
+        BasicTextField(
             value = value,
-            innerTextField = innerTextField,
+            onValueChange = onValueChange,
+            modifier = textModifier
+                .align(Alignment.CenterStart),
             enabled = enabled,
+            readOnly = readOnly,
+            textStyle = textStyle.copy(
+                color = textColor,
+            ),
             singleLine = singleLine,
             visualTransformation = VisualTransformation.None,
-            interactionSource = MutableInteractionSource(),
-            placeholder = @Composable {
-                if (value.isEmpty()) {
-                    Text(
-                        text = placeholder,
-                        style = textStyle.copy(
-                            color = placeholderColor
+            interactionSource = interactionSource,
+            minLines = minLines,
+            maxLines = maxLines,
+            cursorBrush = SolidColor(cursorColor),
+        ) { innerTextField ->
+            TextFieldDefaults.DecorationBox(
+                value = "",
+                innerTextField = innerTextField,
+                enabled = enabled,
+                singleLine = singleLine,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = interactionSource,
+                placeholder = if (value.isEmpty()) {
+                    @Composable {
+                        Text(
+                            text = placeholder,
+                            style = textStyle.copy(
+                                color = placeholderColor
+                            )
                         )
-                    )
-                }
-            },
-            leadingIcon =
-                if(icon != null) {
+                    }
+                } else null,
+                leadingIcon =
+                if (icon != null) {
                     @Composable {
                         Icon(
                             imageVector = icon,
@@ -88,17 +103,21 @@ fun CustomizableTextField(
                         )
                     }
                 } else null,
-            shape = shape,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedPlaceholderColor = placeholderColor,
-                unfocusedPlaceholderColor = placeholderColor,
-            ),
-            contentPadding = PaddingValues(horizontal = horizontalPadding, vertical = verticalPadding),
-        )
+                shape = shape,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedPlaceholderColor = placeholderColor,
+                    unfocusedPlaceholderColor = placeholderColor,
+                ),
+                contentPadding = PaddingValues(
+                    horizontal = 0.dp,
+                    vertical = 0.dp,
+                ),
+            )
+        }
     }
 }
 
@@ -106,7 +125,7 @@ fun CustomizableTextField(
 @Composable
 fun CustomizableTextFieldPreview() {
     CustomizableTextField(
-        modifier = Modifier.fillMaxWidth(),
+        textModifier = Modifier.fillMaxWidth(),
         value = "This is a text",
         onValueChange = { },
     )

@@ -245,7 +245,7 @@ fun SettingsItem(
     )
 
     CustomizableTextField(
-        modifier = textModifier,
+        textModifier = textModifier,
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,

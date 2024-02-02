@@ -124,6 +124,7 @@ class SettingsController(val settings: Settings, val context: Context, val scope
     fun onUserNameType(newText: String) {
         settings.changed.value = true
 
+        settings.validations[Setting.userName] = !newText.isEmpty()
         validate()
 
         settings.values[Setting.userName] = newText

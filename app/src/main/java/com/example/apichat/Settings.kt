@@ -4,6 +4,7 @@ import android.content.Context
 import android.webkit.URLUtil
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
@@ -14,6 +15,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -30,7 +32,9 @@ enum class Setting {
     context,
 }
 
+@Stable
 data class Settings(
+    @Stable
     val defaults: Map<Setting, String> = mapOf<Setting, String>(
         Pair(Setting.apiEndpoint, "0.0.0.0"),
         Pair(Setting.maxTokens, 512.toString()),
@@ -42,6 +46,7 @@ data class Settings(
         Pair(Setting.botName, "Bot"),
         Pair(Setting.context, "This is a conversation between the User and LLM-powered AI Assistant named Bot."),
     ),
+    @Stable
     val keys: Map<Setting, Preferences.Key<*>> = mapOf<Setting, Preferences.Key<*>>(
         Pair(Setting.apiEndpoint, stringPreferencesKey("apiEndpoint")),
         Pair(Setting.maxTokens, intPreferencesKey("maxTokens")),
@@ -54,12 +59,16 @@ data class Settings(
         Pair(Setting.context, stringPreferencesKey("context"))
     ),
 
+    @Stable
     val values: SnapshotStateMap<Setting, String> = mutableStateMapOf<Setting, String>(),
+    @Stable
     val validations: MutableMap<Setting, Boolean> = mutableMapOf<Setting, Boolean>(),
+    @Stable
     val valid: MutableState<Boolean> = mutableStateOf(true),
 
+    @Stable
     val changed: MutableState<Boolean> = mutableStateOf(false)
-)
+): ViewModel()
 
 class SettingsController(val settings: Settings, val context: Context, val scope: CoroutineScope, val navigateBack: () -> Unit) {
     companion object {

@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,10 +28,11 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
 
-                val settings = Settings()
+                val settings = viewModel<Settings>()
                 val settingsController = SettingsController(settings, context, scope, { navController.navigateUp() })
 
-                val chat = Chat(settings, context, scope, {navController.navigate(route = "settings")})
+                val chat = Chat()
+                val chatController = ChatController(chat, settings, context, scope, {navController.navigate(route = "settings")})
 
                 Surface(
                     modifier = Modifier
@@ -40,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "chat") {
                         composable("chat"
                         ) {
-                            ChatScreen(chat = chat)
+                            ChatScreen(chat = chat, controller = chatController, settings = settings)
                         }
                         composable("settings") {
                             SettingsScreen(settings = settings, controller = settingsController)

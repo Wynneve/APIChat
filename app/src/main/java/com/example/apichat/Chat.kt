@@ -12,37 +12,38 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Date
 
-class Chat(val settings: Settings, val context: Context, val scope: CoroutineScope, val navigateToSettings: () -> Unit) {
+data class Chat(
+    val messages: MutableList<Message> = mutableStateListOf(),
+    val assistantIsTyping: MutableState<Boolean> = mutableStateOf(false),
+    val currentMessage: MutableState<String> = mutableStateOf(""),
+)
+
+class ChatController(val chat: Chat, val settings: Settings, val context: Context, val scope: CoroutineScope, val navigateToSettings: () -> Unit) {
     // Parameters
     var scrollState: ScrollState? = null
 
-    // State
-    val messages: MutableList<Message> = mutableStateListOf()
-    val botIsTyping: MutableState<Boolean> = mutableStateOf(false)
-    val currentMessage: MutableState<String> = mutableStateOf("")
-
     // Controllers
     fun onMessageType(newText: String) {
-        currentMessage.value = newText
+        chat.currentMessage.value = newText
     }
 
     fun onSendClick() {
-        if(currentMessage.value.isBlank()) return
+        if(chat.currentMessage.value.isBlank()) return
 
-        messages.add(Message(author="user", date=Date(), content=currentMessage.value))
-        currentMessage.value = ""
+        chat.messages.add(Message(author="user", date=Date(), content=chat.currentMessage.value))
+        chat.currentMessage.value = ""
         scope.launch {
             scrollState!!.animateScrollTo(Int.MAX_VALUE)
         }
 
-        botIsTyping.value = true
-        sendMessage(messages) {
-            messages.add(it)
+        chat.assistantIsTyping.value = true
+        sendMessage(chat.messages) {
+            chat.messages.add(it)
             scope.launch {
                 scrollState!!.animateScrollTo(Int.MAX_VALUE)
             }
 
-            botIsTyping.value = false
+            chat.assistantIsTyping.value = false
         }
     }
 

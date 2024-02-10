@@ -26,10 +26,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apichat.ui.theme.APIChatTheme
 import com.example.apichat.ui.theme.colorPlaceholder
 import com.example.apichat.ui.theme.colorTimestamp
@@ -40,27 +40,21 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun ChatScreen(chat: Chat, controller: ChatController, settings: Settings) {
+fun ChatScreen(chat: Chat, controller: ChatController, settings: SettingsViewModel) {
     controller.scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.surface, shape = RectangleShape)
-                .padding(horizontal = 10.dp, vertical = 5.dp)
-        ) {
+        HeaderRow {
             IconButton(
                 modifier = Modifier
                     .height(40.dp),
                 onClick=controller::onSettingsClick
             ) {
                 Icon(
-                    modifier = Modifier
-                        .align(Alignment.Center),
+                    modifier = Modifier,
                     imageVector = Icons.Default.Settings,
                     contentDescription = LocalContext.current.getString(R.string.chat_Message),
                 )
@@ -78,7 +72,7 @@ fun ChatScreen(chat: Chat, controller: ChatController, settings: Settings) {
             }
             if(chat.assistantIsTyping.value) {
                 Text(
-                    text = "${settings.values[Setting.botName]} ${LocalContext.current.getString(R.string.chat_IsTyping)}"
+                    text = "${settings.get(Setting.botName)} ${LocalContext.current.getString(R.string.chat_IsTyping)}"
                 )
             }
         }
@@ -96,7 +90,7 @@ fun ChatScreen(chat: Chat, controller: ChatController, settings: Settings) {
                 backgroundColor = MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(5.dp),
                 textModifier = Modifier.fillMaxWidth(),
-                value = chat.currentMessage.value,
+                value = { chat.currentMessage.value },
                 onValueChange = controller::onMessageType,
                 textStyle = MaterialTheme.typography.displayMedium,
                 textColor = MaterialTheme.colorScheme.onBackground,
@@ -138,10 +132,10 @@ fun ChatMessage(message: Message) {
     val dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
     val formattedTime = dateFormat.format(time)
 
-    if(message.author == "bot") {
+    if(message.role == Role.Assistant) {
         ChatMessageBase(content = message.content, formattedTime = formattedTime, surfaceColor = MaterialTheme.colorScheme.surface, right = false)
     }
-    else if(message.author == "user") {
+    else if(message.role == Role.User) {
         ChatMessageBase(content = message.content, formattedTime = formattedTime, surfaceColor = colorUserMessage, right = true)
     }
 }
@@ -182,15 +176,16 @@ fun ChatMessageBase(content: String, formattedTime: String, surfaceColor: Color,
 @Composable
 @Preview
 fun ChatScreenPreview() {
-    val settings = Settings()
-    val settingsController = SettingsController(settings, LocalContext.current, rememberCoroutineScope(), {})
-    settingsController.loadSettings()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val settings = viewModel { SettingsViewModel(context, scope, {}) }
 
     val chat = Chat()
     val controller = ChatController(chat, settings, LocalContext.current, rememberCoroutineScope(), {})
 
-    chat.messages.add(Message("user", Date(2024, 1, 1), "Hello! Could you please write a program in Python for me?"))
-    chat.messages.add(Message("bot", Date(2024, 1, 1), "Yea, for example, this Bubble Sort will fit:\n```python\ndef bubble(arr):\n```"))
+    chat.messages.add(Message(Role.User, Date(2024, 1, 1), "Hello! Could you please write a program in Python for me?"))
+    chat.messages.add(Message(Role.Assistant, Date(2024, 1, 1), "Yea, for example, this Bubble Sort will fit:\n```python\ndef bubble(arr):\n```"))
     chat.currentMessage.value = "Hello again?"
     chat.assistantIsTyping.value = true
     controller.scrollState = rememberScrollState()

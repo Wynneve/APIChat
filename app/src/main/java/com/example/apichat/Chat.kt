@@ -3,6 +3,7 @@ package com.example.apichat
 import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.CoroutineScope
@@ -12,13 +13,15 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Date
 
+@Stable
 data class Chat(
     val messages: MutableList<Message> = mutableStateListOf(),
     val assistantIsTyping: MutableState<Boolean> = mutableStateOf(false),
     val currentMessage: MutableState<String> = mutableStateOf(""),
 )
 
-class ChatController(val chat: Chat, val settings: Settings, val context: Context, val scope: CoroutineScope, val navigateToSettings: () -> Unit) {
+@Stable
+class ChatController(val chat: Chat, val settings: SettingsViewModel, val context: Context, val scope: CoroutineScope, val navigateToSettings: () -> Unit) {
     // Parameters
     var scrollState: ScrollState? = null
 
@@ -30,7 +33,7 @@ class ChatController(val chat: Chat, val settings: Settings, val context: Contex
     fun onSendClick() {
         if(chat.currentMessage.value.isBlank()) return
 
-        chat.messages.add(Message(author="user", date=Date(), content=chat.currentMessage.value))
+        chat.messages.add(Message(role=Role.User, date=Date(), content=chat.currentMessage.value))
         chat.currentMessage.value = ""
         scope.launch {
             scrollState!!.animateScrollTo(Int.MAX_VALUE)
@@ -57,17 +60,17 @@ class ChatController(val chat: Chat, val settings: Settings, val context: Contex
             mode = "chat-instruct",
 
             messages = messagesJSON,
-            max_tokens = settings.values[Setting.maxTokens]!!.toInt(),
-            repetition_penalty = settings.values[Setting.repetitionPenalty]!!.toFloat(),
-            temperature = settings.values[Setting.temperature]!!.toFloat(),
-            top_p = settings.values[Setting.topP]!!.toFloat(),
+            max_tokens = settings.get(Setting.maxTokens).toInt(),
+            repetition_penalty = settings.get(Setting.repetitionPenalty).toFloat(),
+            temperature = settings.get(Setting.temperature).toFloat(),
+            top_p = settings.get(Setting.topP).toFloat(),
 
-            user_name = settings.values[Setting.userName]!!,
-            bot_name = settings.values[Setting.botName]!!,
-            context = settings.values[Setting.context]!!,
+            user_name = settings.get(Setting.userName),
+            bot_name = settings.get(Setting.botName),
+            context = settings.get(Setting.context),
         )
         val call: Call<SendMessageResponse> =
-            ChatAPIInstance.getInstance(settings.values[Setting.apiEndpoint]!!).sendMessage(sendMessageRequest)
+            ChatAPIInstance.getInstance(settings.get(Setting.apiEndpoint)).sendMessage(sendMessageRequest)
 
         call.enqueue(object : Callback<SendMessageResponse> {
             override fun onResponse(

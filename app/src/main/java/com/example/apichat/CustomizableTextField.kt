@@ -31,7 +31,7 @@ import com.example.apichat.ui.theme.colorPlaceholder
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomizableTextField(
-    value: String,
+    value: () -> String,
     onValueChange: (String) -> Unit,
     shape: Shape = RectangleShape,
     backgroundColor: Color = MaterialTheme.colorScheme.background,
@@ -59,6 +59,8 @@ fun CustomizableTextField(
             .background(backgroundColor, shape)
             .padding(horizontal=horizontalPadding, vertical=verticalPadding)
     ) {
+        val value = value()
+
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
@@ -126,7 +128,7 @@ fun CustomizableTextField(
 fun CustomizableTextFieldPreview() {
     CustomizableTextField(
         textModifier = Modifier.fillMaxWidth(),
-        value = "This is a text",
+        value = { "This is a text" },
         onValueChange = { },
     )
 }

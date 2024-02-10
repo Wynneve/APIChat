@@ -91,10 +91,7 @@ data class MessageJSON(
 
 fun MessageToJSON(message: Message): MessageJSON {
     return MessageJSON(
-        role =
-            if(message.author == "user") "user"
-            else if (message.author == "bot") "assistant"
-            else "undefined",
+        role = roleToString(message.role),
         content = message.content
     )
 }
@@ -105,10 +102,7 @@ fun MessagesToJSON(messages: List<Message>): Array<MessageJSON> {
 
 fun MessageFromJSON(messageJSON: MessageJSON): Message {
     return Message(
-        author =
-            if(messageJSON.role == "user") "user"
-            else if (messageJSON.role == "assistant") "bot"
-            else "undefined",
+        role = stringToRole(messageJSON.role),
         date = Date(),
         content = messageJSON.content
     )

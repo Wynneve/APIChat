@@ -21,41 +21,34 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apichat.ui.theme.APIChatTheme
 import com.example.apichat.ui.theme.colorInactive
 
 @Composable
-fun SettingsScreen(settings: Settings, controller: SettingsController) {
-    controller.scrollState = rememberScrollState()
+fun SettingsScreen(settings: SettingsViewModel) {
+    settings.scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize(),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.surface, shape = RectangleShape)
-                .padding(horizontal = 5.dp, vertical = 5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        HeaderRow {
             Row {
                 IconButton(
                     modifier = Modifier
                         .height(40.dp),
-                    onClick=controller::onNavigateBackClick
+                    onClick=settings::onNavigateBackClick
                 ) {
                     Icon(
                         modifier = Modifier,
@@ -76,15 +69,15 @@ fun SettingsScreen(settings: Settings, controller: SettingsController) {
                 IconButton(
                     modifier = Modifier
                         .height(40.dp),
-                    onClick = controller::onApplySettingsClick,
-                    enabled = settings.valid.value && settings.changed.value
+                    onClick = settings::onApplySettingsClick,
+                    enabled = settings.getValid() && settings.getChanged()
                 ) {
                     Icon(
                         modifier = Modifier,
                         imageVector = Icons.Default.Check,
                         contentDescription = "Apply",
                         tint =
-                            if(settings.valid.value && settings.changed.value) MaterialTheme.colorScheme.onSurface
+                            if(settings.getValid() && settings.getChanged()) MaterialTheme.colorScheme.onSurface
                             else colorInactive
                     )
                 }
@@ -92,15 +85,15 @@ fun SettingsScreen(settings: Settings, controller: SettingsController) {
                 IconButton(
                     modifier = Modifier
                         .height(40.dp),
-                    onClick = controller::onDiscardSettingsClick,
-                    enabled = settings.changed.value
+                    onClick = settings::onDiscardSettingsClick,
+                    enabled = settings.getChanged()
                 ) {
                     Icon(
                         modifier = Modifier,
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Discard",
                         tint =
-                            if(settings.changed.value) MaterialTheme.colorScheme.onSurface
+                            if(settings.getChanged()) MaterialTheme.colorScheme.onSurface
                             else colorInactive
                     )
                 }
@@ -110,66 +103,66 @@ fun SettingsScreen(settings: Settings, controller: SettingsController) {
         Column(
             modifier = Modifier
                 .padding(10.dp)
-                .verticalScroll(controller.scrollState!!),
+                .verticalScroll(settings.scrollState!!),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             SettingsGroup(title = "API and LLM settings") {
                 SettingsItem(
                     title = "API Endpoint",
-                    value = settings.values[Setting.apiEndpoint] ?: "",
-                    onValueChange = controller::onApiEndpointType,
-                    placeholder = "http://127.0.0.1:5000",
+                    value = { settings.get(Setting.apiEndpoint) },
+                    onValueChange = settings::onApiEndpointType,
+                    placeholder = settings.getDefault(Setting.apiEndpoint),
                 )
 
                 SettingsItem(
                     title = "Maximum tokens",
-                    value = settings.values[Setting.maxTokens] ?: "" ,
-                    onValueChange = controller::onMaxTokensType,
-                    placeholder = (512).toString(),
+                    value = { settings.get(Setting.maxTokens) },
+                    onValueChange = settings::onMaxTokensType,
+                    placeholder = settings.getDefault(Setting.maxTokens),
                 )
 
                 SettingsItem(
                     title = "Repetition penalty",
-                    value = settings.values[Setting.repetitionPenalty] ?: "",
-                    onValueChange = controller::onRepetitionPenaltyType,
-                    placeholder = (1.15f).toString(),
+                    value = { settings.get(Setting.repetitionPenalty) },
+                    onValueChange = settings::onRepetitionPenaltyType,
+                    placeholder = settings.getDefault(Setting.repetitionPenalty),
                 )
 
                 SettingsItem(
                     title = "Temperature",
-                    value = settings.values[Setting.temperature] ?: "",
-                    onValueChange = controller::onTemperatureType,
-                    placeholder = (0.7f).toString(),
+                    value = { settings.get(Setting.temperature) },
+                    onValueChange = settings::onTemperatureType,
+                    placeholder = settings.getDefault(Setting.temperature),
                 )
 
                 SettingsItem(
                     title = "Top P",
-                    value = settings.values[Setting.topP] ?: "",
-                    onValueChange = controller::onTopPType,
-                    placeholder = (0.9f).toString(),
+                    value = { settings.get(Setting.topP) },
+                    onValueChange = settings::onTopPType,
+                    placeholder = settings.getDefault(Setting.topP),
                 )
             }
 
-            SettingsGroup(title = "Character settings") {
+            SettingsGroup(title = "Dialogue settings") {
                 SettingsItem(
                     title = "User name",
-                    value = settings.values[Setting.userName] ?: "",
-                    onValueChange = controller::onUserNameType,
-                    placeholder = "User",
+                    value = { settings.get(Setting.userName) },
+                    onValueChange = settings::onUserNameType,
+                    placeholder = settings.getDefault(Setting.userName),
                 )
 
                 SettingsItem(
                     title = "Bot name",
-                    value = settings.values[Setting.botName] ?: "",
-                    onValueChange = controller::onBotNameType,
-                    placeholder = "Bot",
+                    value = { settings.get(Setting.botName) },
+                    onValueChange = settings::onBotNameType,
+                    placeholder = settings.getDefault(Setting.botName),
                 )
 
                 SettingsItem(
                     title = "Context",
-                    value = settings.values[Setting.context] ?: "",
-                    onValueChange = controller::onContextType,
-                    placeholder = "This is a conversation between the User and LLM-powered AI Assistant named Bot. Bot is...",
+                    value = { settings.get(Setting.context) },
+                    onValueChange = settings::onContextType,
+                    placeholder = settings.getDefault(Setting.context),
                     singleLine = false,
                     minLines = 5,
                     maxLines = 5
@@ -226,7 +219,7 @@ fun SettingsContainer(
 @Composable
 fun SettingsItem(
     title: String,
-    value: String,
+    value: () -> String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     singleLine: Boolean = true,
@@ -261,16 +254,18 @@ fun SettingsItem(
 @Composable
 @Preview
 fun SettingsScreenPreview() {
-    APIChatTheme() {
-        val settings = remember { Settings() }
-        val controller = SettingsController(settings, LocalContext.current, rememberCoroutineScope(), {})
+    APIChatTheme {
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        val settings = viewModel { SettingsViewModel(context, scope, {}) }
 
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            SettingsScreen(settings = settings, controller = controller)
+            SettingsScreen(settings = settings)
         }
     }
 }

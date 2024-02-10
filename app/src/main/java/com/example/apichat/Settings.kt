@@ -5,9 +5,7 @@ import android.webkit.URLUtil
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -34,7 +32,6 @@ enum class Setting {
 
 @Stable
 data class Settings(
-    @Stable
     val defaults: Map<Setting, String> = mapOf<Setting, String>(
         Pair(Setting.apiEndpoint, "0.0.0.0"),
         Pair(Setting.maxTokens, 512.toString()),
@@ -46,7 +43,6 @@ data class Settings(
         Pair(Setting.botName, "Bot"),
         Pair(Setting.context, "This is a conversation between the User and LLM-powered AI Assistant named Bot."),
     ),
-    @Stable
     val keys: Map<Setting, Preferences.Key<*>> = mapOf<Setting, Preferences.Key<*>>(
         Pair(Setting.apiEndpoint, stringPreferencesKey("apiEndpoint")),
         Pair(Setting.maxTokens, intPreferencesKey("maxTokens")),
@@ -59,100 +55,125 @@ data class Settings(
         Pair(Setting.context, stringPreferencesKey("context"))
     ),
 
-    @Stable
-    val values: SnapshotStateMap<Setting, String> = mutableStateMapOf<Setting, String>(),
-    @Stable
-    val validations: MutableMap<Setting, Boolean> = mutableMapOf<Setting, Boolean>(),
-    @Stable
+    val values: Map<Setting, MutableState<String>> = mutableMapOf<Setting, MutableState<String>>().apply {
+        defaults.forEach { (setting, value) ->
+            this[setting] = mutableStateOf(value)
+        }
+    },
+    val validations: MutableMap<Setting, Boolean> = mutableMapOf<Setting, Boolean>().apply {
+        defaults.keys.forEach { setting ->
+            this[setting] = true
+        }
+    },
     val valid: MutableState<Boolean> = mutableStateOf(true),
 
-    @Stable
     val changed: MutableState<Boolean> = mutableStateOf(false)
-): ViewModel()
+)
 
-class SettingsController(val settings: Settings, val context: Context, val scope: CoroutineScope, val navigateBack: () -> Unit) {
-    companion object {
-        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-    }
+@Stable
+class SettingsViewModel(private val context: Context, private val scope: CoroutineScope, val navigateBack: () -> Unit): ViewModel() {
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+    private val model = Settings()
+
+    var scrollState: ScrollState? = null
 
     init {
         loadSettings()
     }
 
-    var scrollState: ScrollState? = null
+    fun get(setting: Setting): String {
+        return model.values[setting]!!.value
+    }
+
+    fun set(setting: Setting, value: String) {
+        model.values[setting]!!.value = value
+    }
+
+    fun getDefault(setting: Setting): String {
+        return model.defaults[setting]!!
+    }
+
+    fun getValid() : Boolean {
+        return model.valid.value
+    }
+
+    fun getChanged(): Boolean {
+        return model.changed.value
+    }
+
 
     fun onApiEndpointType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
-        settings.validations[Setting.apiEndpoint] = URLUtil.isValidUrl(newText)
+        model.validations[Setting.apiEndpoint] = URLUtil.isValidUrl(newText)
         validate()
 
-        settings.values[Setting.apiEndpoint] = newText
+        model.values[Setting.apiEndpoint]?.value = newText
     }
 
     fun onMaxTokensType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
         val convertedMaxTokens = newText.toIntOrNull()
-        settings.validations[Setting.maxTokens] = convertedMaxTokens != null
+        model.validations[Setting.maxTokens] = convertedMaxTokens != null
         validate()
 
-        settings.values[Setting.maxTokens] = newText
+        model.values[Setting.maxTokens]?.value = newText
     }
 
     fun onRepetitionPenaltyType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
         val convertedRepetitionPenalty = newText.toFloatOrNull()
-        settings.validations[Setting.repetitionPenalty] = convertedRepetitionPenalty != null
+        model.validations[Setting.repetitionPenalty] = convertedRepetitionPenalty != null
         validate()
 
-        settings.values[Setting.repetitionPenalty] = newText
+        model.values[Setting.repetitionPenalty]?.value = newText
     }
 
     fun onTemperatureType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
         val convertedTemperature = newText.toFloatOrNull()
-        settings.validations[Setting.temperature] = convertedTemperature != null
+        model.validations[Setting.temperature] = convertedTemperature != null
         validate()
 
-        settings.values[Setting.temperature] = newText
+        model.values[Setting.temperature]?.value = newText
     }
 
     fun onTopPType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
         val convertedTopP = newText.toFloatOrNull()
-        settings.validations[Setting.topP] = convertedTopP != null
+        model.validations[Setting.topP] = convertedTopP != null
         validate()
 
-        settings.values[Setting.topP] = newText
+        model.values[Setting.topP]?.value = newText
     }
 
     fun onUserNameType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
-        settings.validations[Setting.userName] = !newText.isEmpty()
+        model.validations[Setting.userName] = newText.isNotEmpty()
         validate()
 
-        settings.values[Setting.userName] = newText
+        model.values[Setting.userName]?.value = newText
     }
 
     fun onBotNameType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
         validate()
 
-        settings.values[Setting.botName] = newText
+        model.values[Setting.botName]?.value = newText
     }
 
     fun onContextType(newText: String) {
-        settings.changed.value = true
+        model.changed.value = true
 
         validate()
 
-        settings.values[Setting.context] = newText
+        model.values[Setting.context]?.value = newText
     }
 
     fun onNavigateBackClick() {
@@ -160,20 +181,20 @@ class SettingsController(val settings: Settings, val context: Context, val scope
     }
 
     fun validate() {
-        settings.valid.value = settings.validations.values.all { it }
+        model.valid.value = model.validations.values.all { it }
     }
 
     fun onApplySettingsClick() {
-        settings.changed.value = false
+        model.changed.value = false
 
         saveSettings()
     }
-    
-    fun onDiscardSettingsClick() {
-        for(setting in Setting.values()) settings.validations[setting] = true
 
-        settings.valid.value = true
-        settings.changed.value = false
+    fun onDiscardSettingsClick() {
+        for(setting in Setting.values()) model.validations[setting] = true
+
+        model.valid.value = true
+        model.changed.value = false
 
         loadSettings()
     }
@@ -182,8 +203,8 @@ class SettingsController(val settings: Settings, val context: Context, val scope
         scope.launch(Dispatchers.Main) {
             context.dataStore.edit { preferences ->
                 for(setting in Setting.values()) {
-                    if(settings.validations[setting]!!) {
-                        preferences[settings.keys[setting] as Preferences.Key<Any>] = settings.values[setting]!!
+                    if(model.validations[setting]!!) {
+                        preferences[model.keys[setting] as Preferences.Key<Any>] = model.values[setting]!!.value
                     }
                 }
             }
@@ -195,9 +216,9 @@ class SettingsController(val settings: Settings, val context: Context, val scope
             val data = context.dataStore.data.first()
 
             for(setting in Setting.values()) {
-                val key = settings.keys[setting] as Preferences.Key<Any>
-                settings.values[setting] = (data[key] ?: settings.defaults[setting] ?: "").toString()
-                settings.validations[setting] = true
+                val key = model.keys[setting] as Preferences.Key<Any>
+                model.values[setting]?.value = (data[key] ?: model.defaults[setting] ?: "").toString()
+                model.validations[setting] = true
             }
         }
     }

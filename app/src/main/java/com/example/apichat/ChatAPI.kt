@@ -103,7 +103,7 @@ fun MessagesToJSON(messages: List<Message>): Array<MessageJSON> {
 fun MessageFromJSON(messageJSON: MessageJSON): Message {
     return Message(
         role = stringToRole(messageJSON.role),
-        date = Date(),
+        timestamp = Date(),
         content = messageJSON.content
     )
 }

@@ -24,4 +24,4 @@ fun stringToRole(role: String): Role {
 }
 
 @Stable
-data class Message(val role: Role, val date: Date, val content: String)
+data class Message(val role: Role, val timestamp: Date, val content: String)

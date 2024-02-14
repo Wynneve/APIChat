@@ -128,7 +128,7 @@ fun ChatScreen(chat: Chat, controller: ChatController, settings: SettingsViewMod
 
 @Composable
 fun ChatMessage(message: Message) {
-    val time = message.date
+    val time = message.timestamp
     val dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
     val formattedTime = dateFormat.format(time)
 
@@ -150,7 +150,9 @@ fun ChatMessageBase(content: String, formattedTime: String, surfaceColor: Color,
         Column(
             modifier = Modifier
                 .weight(3f, fill = false)
-                .background(surfaceColor, shape = RoundedCornerShape(5.dp))
+                .background(surfaceColor, shape = RoundedCornerShape(5.dp, 5.dp,
+                    if(right) 0.dp else 5.dp,
+                    if(right) 5.dp else 0.dp))
                 .padding(5.dp),
         ) {
             MarkdownText(

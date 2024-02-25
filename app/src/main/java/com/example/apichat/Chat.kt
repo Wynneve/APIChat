@@ -33,7 +33,7 @@ class ChatController(val chat: Chat, val settings: SettingsViewModel, val contex
     fun onSendClick() {
         if(chat.currentMessage.value.isBlank()) return
 
-        chat.messages.add(Message(role=Role.User, timestamp=Date(), content=chat.currentMessage.value))
+        chat.messages.add(Message(role =roleUser, timestamp =Date(), content =chat.currentMessage.value))
         chat.currentMessage.value = ""
         scope.launch {
             scrollState!!.animateScrollTo(Int.MAX_VALUE)

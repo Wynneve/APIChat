@@ -1,18 +1,7 @@
-package com.example.apichat
+package com.example.apichat.db
 
 import android.content.Context
 import android.database.sqlite.SQLiteOpenHelper
-
-data class MessageDAO(
-    val id: Int,
-    val chat_id: Int,
-    val role: String,
-    val content: String,
-)
-
-data class SettingsDAO(
-    
-)
 
 class DBHandler(context: Context?): SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
     companion object {

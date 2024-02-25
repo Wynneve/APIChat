@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -8,7 +9,7 @@ android {
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.example.apichat"
+        applicationId = "com.wynneve.apichat"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
@@ -18,6 +19,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+//
+//        ksp {
+//            arguments { arg("room.schemaLocation", "$projectDir/schemas") }
+//        }
     }
 
     buildTypes {
@@ -77,6 +82,7 @@ dependencies {
 
     implementation("com.github.jeziellago:compose-markdown:+")
 
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.5.2")
+    ksp("androidx.room:room-compiler:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
 }

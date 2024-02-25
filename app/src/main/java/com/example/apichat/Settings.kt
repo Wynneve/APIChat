@@ -9,9 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -43,16 +40,16 @@ data class Settings(
         Pair(Setting.botName, "Bot"),
         Pair(Setting.context, "This is a conversation between the User and LLM-powered AI Assistant named Bot."),
     ),
-    val keys: Map<Setting, Preferences.Key<*>> = mapOf<Setting, Preferences.Key<*>>(
-        Pair(Setting.apiEndpoint, stringPreferencesKey("apiEndpoint")),
-        Pair(Setting.maxTokens, intPreferencesKey("maxTokens")),
-        Pair(Setting.repetitionPenalty, floatPreferencesKey("repetitionPenalty")),
-        Pair(Setting.temperature, floatPreferencesKey("temperature")),
-        Pair(Setting.topP, floatPreferencesKey("topP")),
+    val keys: Map<Setting, String> = mapOf<Setting, String>(
+        Pair(Setting.apiEndpoint, "apiEndpoint"),
+        Pair(Setting.maxTokens, "maxTokens"),
+        Pair(Setting.repetitionPenalty, "repetitionPenalty"),
+        Pair(Setting.temperature, "temperature"),
+        Pair(Setting.topP, "topP"),
 
-        Pair(Setting.userName, stringPreferencesKey("userName")),
-        Pair(Setting.botName, stringPreferencesKey("botName")),
-        Pair(Setting.context, stringPreferencesKey("context"))
+        Pair(Setting.userName, "userName"),
+        Pair(Setting.botName, "botName"),
+        Pair(Setting.context, "context")
     ),
 
     val values: Map<Setting, MutableState<String>> = mutableMapOf<Setting, MutableState<String>>().apply {

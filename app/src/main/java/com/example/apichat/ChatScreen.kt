@@ -128,14 +128,14 @@ fun ChatScreen(chat: Chat, controller: ChatController, settings: SettingsViewMod
 
 @Composable
 fun ChatMessage(message: Message) {
-    val time = message.timestamp
+    val time = Date(message.timestamp)
     val dateFormat = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
     val formattedTime = dateFormat.format(time)
 
-    if(message.role == Role.Assistant) {
+    if(message.role == roleAssistant) {
         ChatMessageBase(content = message.content, formattedTime = formattedTime, surfaceColor = MaterialTheme.colorScheme.surface, right = false)
     }
-    else if(message.role == Role.User) {
+    else if(message.role == roleUser) {
         ChatMessageBase(content = message.content, formattedTime = formattedTime, surfaceColor = colorUserMessage, right = true)
     }
 }
@@ -186,8 +186,8 @@ fun ChatScreenPreview() {
     val chat = Chat()
     val controller = ChatController(chat, settings, LocalContext.current, rememberCoroutineScope(), {})
 
-    chat.messages.add(Message(Role.User, Date(2024, 1, 1), "Hello! Could you please write a program in Python for me?"))
-    chat.messages.add(Message(Role.Assistant, Date(2024, 1, 1), "Yea, for example, this Bubble Sort will fit:\n```python\ndef bubble(arr):\n```"))
+    chat.messages.add(Message(roleUser, Date(2024, 1, 1).time, "Hello! Could you please write a program in Python for me?"))
+    chat.messages.add(Message(roleAssistant, Date(2024, 1, 1).time, "Yea, for example, this Bubble Sort will fit:\n```python\ndef bubble(arr):\n```"))
     chat.currentMessage.value = "Hello again?"
     chat.assistantIsTyping.value = true
     controller.scrollState = rememberScrollState()

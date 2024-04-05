@@ -1,5 +1,8 @@
 package com.wynneve.apichat.composables
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,8 +16,12 @@ import com.wynneve.apichat.ui.theme.APIChatTheme
 // Must be called in Row/Column scope in order to properly space composables.
 @Composable
 fun NamedTextField(
-    textModifier: Modifier = Modifier,
-    fieldModifier: Modifier = Modifier,
+    textModifier: Modifier = Modifier
+        .padding(start = 10.dp),
+    fieldModifier: Modifier = Modifier
+        .fillMaxWidth()
+        .heightIn(min = 40.dp)
+        .padding(start = 5.dp, end = 5.dp),
     title: String,
     placeholder: String,
     value: () -> String,

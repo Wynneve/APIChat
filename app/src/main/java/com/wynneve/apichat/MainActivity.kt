@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("settings") {
                             EnterAnimation {
-                                SettingsScreen(settings = settingsViewModel)
+                                //SettingsScreen(settings = settingsViewModel)
                             }
                         }
                     }
@@ -99,26 +99,6 @@ fun EnterAnimation(content: @Composable () -> Unit) {
             expandFrom = Alignment.Top
         ) + fadeIn(initialAlpha = 0.3f),
         exit = slideOutVertically() + shrinkVertically() + fadeOut(),
-    ) {
-        content()
-    }
-}
-
-@Composable
-fun HeaderRow(
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    shape: Shape = RectangleShape,
-    horizontalPadding: Dp = 5.dp,
-    verticalPadding: Dp = 5.dp,
-    arrangement: Arrangement.HorizontalOrVertical = Arrangement.SpaceBetween,
-    content: @Composable () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = backgroundColor, shape = shape)
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding),
-        horizontalArrangement = arrangement
     ) {
         content()
     }

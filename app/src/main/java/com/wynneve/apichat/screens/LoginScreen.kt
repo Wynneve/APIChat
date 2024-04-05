@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -85,22 +86,17 @@ fun LoginScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    top = 10.dp,
-                    bottom = 10.dp,
-                    start = 10.dp,
-                    end = 10.dp
-                )
+                .padding(all = 10.dp)
         ) {
             ContentListColumn {
                 var pass = remember { mutableStateOf("") }
-                CredentialField(
+                NamedTextField(
                     title = "Login",
                     placeholder = "Login",
                     value = { "" },
                     onValueChange = {},
                 )
-                CredentialField(
+                NamedTextField(
                     title = "Password",
                     placeholder = "Password",
                     value = { pass.value },
@@ -127,29 +123,6 @@ fun LoginScreen() {
             }
         }
     }
-}
-
-@Composable
-fun CredentialField(
-    title: String,
-    placeholder: String,
-    value: () -> String,
-    onValueChange: (String) -> Unit,
-    visualTransformation: VisualTransformation = VisualTransformation.None
-) {
-    NamedTextField(
-        title = title,
-        placeholder = placeholder,
-        value = value,
-        onValueChange = onValueChange,
-        visualTransformation = visualTransformation,
-        textModifier = Modifier
-            .padding(start = 10.dp),
-        fieldModifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp)
-            .padding(start = 5.dp, end = 5.dp)
-    )
 }
 
 @Preview

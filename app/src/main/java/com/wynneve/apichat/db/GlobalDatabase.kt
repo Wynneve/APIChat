@@ -8,8 +8,8 @@ import androidx.room.Room
 object GlobalDatabase {
     private lateinit var context: Context
 
-    public val database: ApplicationDatabase by lazy {
-        Room.databaseBuilder(this.context, ApplicationDatabase::class.java, "db.db")
+    public val database: DatabaseInstance by lazy {
+        Room.databaseBuilder(this.context, DatabaseInstance::class.java, "db.db")
             .createFromAsset("db.db")
             .build()
     }

@@ -26,7 +26,7 @@ import com.wynneve.apichat.db.models.UserModel
         DbMessage::class,
     ]
 )
-abstract class ApplicationDatabase: RoomDatabase() {
+abstract class DatabaseInstance: RoomDatabase() {
     abstract fun getSettingDao(): SettingModel
     abstract fun getUserDao(): UserModel
     abstract fun getGlobalSettingDao(): GlobalSettingModel

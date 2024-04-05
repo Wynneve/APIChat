@@ -24,4 +24,6 @@ data class DbMessage(
     val timestamp: Long,
     @ColumnInfo(name="content")
     val content: String,
+    @ColumnInfo(name="image")
+    val image: String?
 )

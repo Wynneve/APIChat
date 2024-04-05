@@ -80,22 +80,17 @@ fun NewProfileScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    top = 10.dp,
-                    bottom = 10.dp,
-                    start = 10.dp,
-                    end = 10.dp
-                )
+                .padding(all = 10.dp)
         ) {
             ContentListColumn {
                 var pass = remember { mutableStateOf("") }
-                CredentialField(
+                NamedTextField(
                     title = "Login",
                     placeholder = "Login",
                     value = { "" },
                     onValueChange = {},
                 )
-                CredentialField(
+                NamedTextField(
                     title = "Password",
                     placeholder = "Password",
                     value = { pass.value },

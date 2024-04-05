@@ -122,7 +122,7 @@ fun ChatScreen() {
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             val messages = Array<DbMessage>(10) {
-                DbMessage(it, 0, if(Random.nextInt() % 2 == 0) "assistant" else "user", Random.nextLong(), "Very long message to surely overfit the boundaries ${it}")
+                DbMessage(it, 0, if(Random.nextInt() % 2 == 0) "assistant" else "user", Random.nextLong(), "Very long message to surely overfit the boundaries ${it}", null)
             }
             val isTyping = false
 

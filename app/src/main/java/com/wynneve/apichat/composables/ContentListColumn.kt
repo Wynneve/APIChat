@@ -16,10 +16,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ContentListColumn(
-    content: @Composable ColumnScope.() -> Unit
+    scrollable: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
-        modifier = Modifier
+        modifier = if(scrollable) Modifier
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surface,
@@ -28,7 +29,13 @@ fun ContentListColumn(
             .padding(10.dp)
             .verticalScroll(
                 state = rememberScrollState()
-            ),
+            ) else Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp),
         content = content
     )

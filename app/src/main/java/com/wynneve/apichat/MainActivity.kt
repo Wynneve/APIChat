@@ -3,9 +3,11 @@ package com.wynneve.apichat
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,16 +29,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavOptions
+import com.google.accompanist.navigation.animation.navigation
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.wynneve.apichat.db.ApplicationDatabase
+import com.wynneve.apichat.screens.ChatsScreen
+import com.wynneve.apichat.screens.NewProfileScreen
+import com.wynneve.apichat.screens.ProfilesScreen
 import com.wynneve.apichat.ui.theme.APIChatTheme
-//import com.example.apichat.viewmodels.Chat
-//import com.example.apichat.viewmodels.ChatController
+import com.wynneve.apichat.viewmodels.ChatsViewModel
+import com.wynneve.apichat.viewmodels.NewProfileViewModel
+import com.wynneve.apichat.viewmodels.ProfilesViewModel
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
@@ -48,36 +57,85 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             APIChatTheme {
-                val scope = rememberCoroutineScope()
                 val context = applicationContext
+                ApplicationDatabase.initialize(context)
 
-                val navController: NavHostController = rememberNavController()
-
-                val settingsViewModel = viewModel { SettingsViewModel(context, scope, navController::navigateUp) }
-
-                //val chat = Chat()
-                //val chatController = ChatController(chat, settingsViewModel, context, scope, { navController.navigate(route = "settings") })
+                val navController = rememberAnimatedNavController()
 
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
                     color=MaterialTheme.colorScheme.background
                 ) {
-                    NavHost(
+                    AnimatedNavHost(
                         navController = navController,
-                        startDestination = "chat",
+                        startDestination = "profiles",
+                        enterTransition = {
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500))
+                        },
+                        exitTransition = {
+                            slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500))
+                        },
+                        popEnterTransition = {
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500))
+                        },
+                        popExitTransition = {
+                            slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500))
+                        }
                     ) {
                         composable(
-                            "chat",
+                            "profiles",
                         ) {
-                            EnterAnimation {
-                                //ChatScreen(chat = chat, controller = chatController, settings = settingsViewModel)
-                            }
+                            val profilesViewModel = viewModel { ProfilesViewModel(
+                                navigateToNewProfile = { callback ->
+                                    navController.navigate("newProfile")
+                                    callback()
+                                },
+                                navigateToChats = { id, callback ->
+                                    navController.navigate(
+                                        route = "chats/${id}",
+                                        navOptions = NavOptions.Builder()
+                                            .setEnterAnim(0)
+                                            .setExitAnim(0)
+                                            .setPopUpTo("profiles", true)
+                                            .build()
+                                    )
+                                    callback()
+                                }
+                            )}
+
+                            ProfilesScreen(profilesViewModel = profilesViewModel)
                         }
-                        composable("settings") {
-                            EnterAnimation {
-                                //SettingsScreen(settings = settingsViewModel)
-                            }
+                        composable("newProfile") {
+                            val newProfileViewModel = viewModel { NewProfileViewModel(
+                                navigateBack = { callback ->
+                                    navController.navigateUp()
+                                    callback()
+                                },
+                                navigateToChats = { id, callback ->
+                                    navController.navigate(
+                                        route = "chats/${id}",
+                                        navOptions = NavOptions.Builder()
+                                            .setEnterAnim(0)
+                                            .setExitAnim(0)
+                                            .setPopUpTo("profiles", true)
+                                            .build()
+                                    )
+                                    //navController.popBackStack("profiles", inclusive = false)
+                                    callback()
+                                },
+                            )}
+
+                            NewProfileScreen(newProfileViewModel = newProfileViewModel)
+                        }
+                        composable("chats/{id}") {
+                            val id = it.arguments!!.getInt("id")
+                            val chatsViewModel = viewModel { ChatsViewModel(
+                                profileId = id,
+                                navigateToChat = { id, callback -> }
+                            )}
+
+                            ChatsScreen(chatsViewModel = chatsViewModel)
                         }
                     }
                 }

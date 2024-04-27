@@ -5,16 +5,16 @@ import android.content.Context
 import androidx.room.Room
 
 @SuppressLint("StaticFieldLeak")
-object GlobalDatabase {
+object ApplicationDatabase {
     private lateinit var context: Context
 
-    public val database: DatabaseInstance by lazy {
-        Room.databaseBuilder(this.context, DatabaseInstance::class.java, "db.db")
-            .createFromAsset("db.db")
+    public val database: DatabaseInterface by lazy {
+        Room.databaseBuilder(this.context, DatabaseInterface::class.java, "db.db")
+
             .build()
     }
 
-    fun init(context: Context) {
+    fun initialize(context: Context) {
         this.context = context
     }
 }

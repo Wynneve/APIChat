@@ -1,22 +1,23 @@
 package com.wynneve.apichat.db.controllers
 
-import com.wynneve.apichat.db.GlobalDatabase
+import com.wynneve.apichat.db.ApplicationDatabase
 import com.wynneve.apichat.db.entities.DbMessage
 import com.wynneve.apichat.db.models.MessageModel
+import kotlinx.coroutines.flow.Flow
 
 object MessageController {
-    private val messageModel: MessageModel by lazy { GlobalDatabase.database.getMessageDao() }
+    private val messageModel: MessageModel by lazy { ApplicationDatabase.database.getMessageDao() }
 
     suspend fun createMessage(message: DbMessage): Boolean {
         val result = messageModel.createMessage(message)
         return (result != 0L)
     }
 
-    suspend fun getMessageById(id: Int): DbMessage {
+    fun getMessageById(id: Int): Flow<DbMessage?> {
         return messageModel.getMessageById(id)
     }
 
-    suspend fun getMessagesByChat(chatId: Int): Array<DbMessage> {
+    fun getMessagesByChat(chatId: Int): Flow<List<DbMessage>> {
         return messageModel.getMessagesByChat(chatId)
     }
 

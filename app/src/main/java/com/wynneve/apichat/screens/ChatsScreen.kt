@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,18 +33,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wynneve.apichat.composables.ContentListColumn
 import com.wynneve.apichat.composables.HeaderRow
+import com.wynneve.apichat.composables.NamedTextField
 import com.wynneve.apichat.db.entities.DbChat
 import com.wynneve.apichat.ui.theme.APIChatTheme
 import com.wynneve.apichat.ui.theme.colorDelete
+import com.wynneve.apichat.ui.theme.colorShadow
+import com.wynneve.apichat.viewmodels.ChatsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatsScreen() {
+fun ChatsScreen(chatsViewModel: ChatsViewModel) {
     val isInEditMode = remember { mutableStateOf(false) }
 
     Column(
@@ -159,6 +167,11 @@ fun ChatEntry(chat: DbChat, onClick: () -> Unit, isInEditMode: Boolean) {
 @Composable
 fun ChatsScreenPreview() {
     APIChatTheme {
-        ChatsScreen()
+        val viewModel = ChatsViewModel(
+            profileId = 0,
+            navigateToChat = { _, _ -> }
+        )
+
+        ChatsScreen(viewModel)
     }
 }

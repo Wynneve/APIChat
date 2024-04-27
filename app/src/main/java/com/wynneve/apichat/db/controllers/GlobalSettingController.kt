@@ -1,19 +1,20 @@
 package com.wynneve.apichat.db.controllers
 
-import com.wynneve.apichat.db.GlobalDatabase
+import com.wynneve.apichat.db.ApplicationDatabase
 import com.wynneve.apichat.db.entities.DbGlobalSetting
 import com.wynneve.apichat.db.models.GlobalSettingModel
+import kotlinx.coroutines.flow.Flow
 
 object GlobalSettingController {
-    private val globalSettingModel: GlobalSettingModel by lazy { GlobalDatabase.database.getGlobalSettingDao() }
+    private val globalSettingModel: GlobalSettingModel by lazy { ApplicationDatabase.database.getGlobalSettingDao() }
 
     suspend fun createGlobalSetting(globalSetting: DbGlobalSetting): Boolean {
         val result = globalSettingModel.createGlobalSetting(globalSetting)
         return (result != 0L)
     }
 
-    suspend fun getGlobalSettingByUserAndId(userId: Int, settingId: Int): DbGlobalSetting {
-        return globalSettingModel.getGlobalSettingByUserAndId(userId, settingId)
+    fun getGlobalSettingByUserAndId(profileId: Int, settingId: Int): Flow<DbGlobalSetting?> {
+        return globalSettingModel.getGlobalSettingByProfileAndId(profileId, settingId)
     }
 
     suspend fun updateGlobalSetting(globalSetting: DbGlobalSetting): Boolean {
@@ -21,8 +22,8 @@ object GlobalSettingController {
         return (result != 0)
     }
 
-    suspend fun deleteGlobalSettingByUserAndId(userId: Int, settingId: Int): Boolean {
-        val result = globalSettingModel.deleteGlobalSettingByUserAndId(userId, settingId)
+    suspend fun deleteGlobalSettingByUserAndId(profileId: Int, settingId: Int): Boolean {
+        val result = globalSettingModel.deleteGlobalSettingByProfileAndId(profileId, settingId)
         return (result != 0)
     }
 }

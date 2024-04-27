@@ -7,17 +7,17 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName="chats", foreignKeys = [
     ForeignKey(
-        entity = DbUser::class,
+        entity = DbProfile::class,
         parentColumns = ["id"],
-        childColumns = ["user_id"]
+        childColumns = ["profile_id"]
     )
 ])
 data class DbChat(
     @PrimaryKey(autoGenerate=true)
     @ColumnInfo(name="id")
     val id: Int = 0,
-    @ColumnInfo(name="user_id")
-    val userId: Int,
+    @ColumnInfo(name="profile_id")
+    val profileId: Int,
     @ColumnInfo(name="title")
     val title: String,
     @ColumnInfo(name="last_access")

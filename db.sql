@@ -1,4 +1,4 @@
-CREATE TABLE "users" (
+CREATE TABLE "profiles" (
 	"id"	INTEGER,
 	"login"	TEXT NOT NULL,
 	"password"	TEXT NOT NULL,
@@ -13,20 +13,20 @@ CREATE TABLE "settings" (
 );
 
 CREATE TABLE "global_settings" (
-	"user_id"	INTEGER,
+	"profile_id"	INTEGER,
 	"setting_id"	INTEGER,
 	"value"	INTEGER,
-	PRIMARY KEY("user_id","setting_id"),
-	FOREIGN KEY("user_id") REFERENCES "users"("id"),
+	PRIMARY KEY("profile_id","setting_id"),
+	FOREIGN KEY("profile_id") REFERENCES "profiles"("id"),
 	FOREIGN KEY("setting_id") REFERENCES "settings"("id")
 );
 
 CREATE TABLE "chats" (
 	"id"	INTEGER,
-	"user_id"	INTEGER NOT NULL,
+	"profile_id"	INTEGER NOT NULL,
 	"title"	TEXT,
 	"last_access" INTEGER,
-	FOREIGN KEY("user_id") REFERENCES "users"("id"),
+	FOREIGN KEY("profile_id") REFERENCES "profiles"("id"),
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 

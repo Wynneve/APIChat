@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -208,14 +209,13 @@ fun ChatMessage(message: DbMessage) {
 
 @Composable
 fun ChatMessageBase(content: String, formattedTime: String, surfaceColor: Color, right: Boolean) {
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        if(right) Box(modifier = Modifier.weight(1f))
         Column(
             modifier = Modifier
-                .weight(3f, fill = false)
+                .align(if(right) Alignment.End else Alignment.Start)
+                .fillMaxWidth(fraction = 0.75f)
                 .background(
                     surfaceColor, shape = RoundedCornerShape(
                         10.dp, 10.dp,
@@ -241,7 +241,6 @@ fun ChatMessageBase(content: String, formattedTime: String, surfaceColor: Color,
                 style = MaterialTheme.typography.displaySmall,
             )
         }
-        if(!right) Box(modifier = Modifier.weight(1f))
     }
 }
 

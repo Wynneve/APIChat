@@ -76,7 +76,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.5.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-    implementation("androidx.navigation:navigation-compose:2.5.0")
+    //implementation("androidx.navigation:navigation-compose:2.5.0")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.29.0-alpha")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

@@ -5,15 +5,16 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.wynneve.apichat.db.entities.DbMessage
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageModel {
     // the login field is indexed, thus there shall be a unique user
     @Query("SELECT id, chat_id, role, timestamp, content, image FROM messages WHERE id = :id")
-    suspend fun getMessageById(id: Int): DbMessage
+    fun getMessageById(id: Int): Flow<DbMessage?>
 
     @Query("SELECT id, chat_id, role, timestamp, content, image FROM messages WHERE chat_id = :chatId")
-    suspend fun getMessagesByChat(chatId: Int): Array<DbMessage>
+    fun getMessagesByChat(chatId: Int): Flow<List<DbMessage>>
 
     @Insert(entity = DbMessage::class)
     suspend fun createMessage(message: DbMessage): Long

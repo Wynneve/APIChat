@@ -7,9 +7,9 @@ import androidx.room.ForeignKey
 @Entity(tableName="global_settings",
     foreignKeys=[
         ForeignKey(
-            entity = DbUser::class,
+            entity = DbProfile::class,
             parentColumns = ["id"],
-            childColumns = ["user_id"]
+            childColumns = ["profile_id"]
         ),
         ForeignKey(
             entity = DbSetting::class,
@@ -18,12 +18,12 @@ import androidx.room.ForeignKey
         ),
     ],
     primaryKeys = [
-        "user_id", "setting_id"
+        "profile_id", "setting_id"
     ]
 )
 data class DbGlobalSetting(
-    @ColumnInfo(name="user_id")
-    val userId: Int,
+    @ColumnInfo(name="profile_id")
+    val profileId: Int,
     @ColumnInfo(name="setting_id")
     val settingId: Int,
     @ColumnInfo(name="value")

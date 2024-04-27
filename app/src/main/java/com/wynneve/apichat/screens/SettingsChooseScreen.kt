@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wynneve.apichat.composables.ContentListColumn
 import com.wynneve.apichat.composables.HeaderRow
-import com.wynneve.apichat.db.entities.DbUser
 import com.wynneve.apichat.ui.theme.APIChatTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

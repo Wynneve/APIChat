@@ -27,6 +27,24 @@ fun HeaderRow(
     navigation: @Composable RowScope.() -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
 ) {
+    HeaderRow(
+        title = { Text(
+            style = MaterialTheme.typography.displayLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            text = title,
+        )},
+        navigation = navigation,
+        actions = actions
+    )
+}
+
+@Composable
+fun HeaderRow(
+    title: @Composable RowScope.() -> Unit = {},
+    navigation: @Composable RowScope.() -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+) {
     Row(
         modifier = Modifier
             .height(60.dp)
@@ -42,12 +60,7 @@ fun HeaderRow(
                 .width(5.dp)
         )
 
-        Text(
-            style = MaterialTheme.typography.displayLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface
-            ),
-            text = title,
-        )
+        title()
 
         Spacer(
             modifier = Modifier

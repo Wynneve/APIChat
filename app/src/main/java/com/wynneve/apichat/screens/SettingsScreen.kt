@@ -17,33 +17,53 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.wynneve.apichat.R
+import com.wynneve.apichat.viewmodels.SettingsViewModel
 import com.wynneve.apichat.composables.HeaderRow
 import com.wynneve.apichat.composables.NamedGroup
 import com.wynneve.apichat.composables.NamedTextField
+import com.wynneve.apichat.db.SettingCategory
+import com.wynneve.apichat.db.SettingType
+import com.wynneve.apichat.db.Settings
 import com.wynneve.apichat.ui.theme.APIChatTheme
 import com.wynneve.apichat.ui.theme.colorInactive
+import kotlinx.coroutines.delay
 
 @Composable
-fun SettingsScreen(settings: SettingsViewModel) {
-    settings.scrollState = rememberScrollState()
+fun SettingsScreen(settingsViewModel: SettingsViewModel) {
+    var navigationEnabled by remember { mutableStateOf(true) }
+    LaunchedEffect(navigationEnabled) {
+        delay(1000)
+        navigationEnabled = true
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize(),
     ) {
         HeaderRow(
-            title = "Settings",
+            title = LocalContext.current.getString(R.string.settings_Title),
             navigation = {
                 IconButton(
                     modifier = Modifier
                         .size(40.dp),
-                    onClick = {}
+                    onClick = {
+                        navigationEnabled = false
+                        settingsViewModel.navigateBack()
+                    },
+                    enabled = navigationEnabled
                 ) {
                     Icon(
                         modifier = Modifier
@@ -58,31 +78,20 @@ fun SettingsScreen(settings: SettingsViewModel) {
                 IconButton(
                     modifier = Modifier
                         .height(40.dp),
-                    onClick = settings::onApplySettingsClick,
-                    enabled = settings.getValid() && settings.getChanged()
+                    onClick = {
+                        settingsViewModel.synced = false
+                        settingsViewModel.onSaveClick {
+                            settingsViewModel.synced = true
+                        }
+                    },
+                    enabled = settingsViewModel.valid && settingsViewModel.changed
                 ) {
                     Icon(
                         modifier = Modifier,
                         imageVector = Icons.Default.Check,
                         contentDescription = "Apply",
                         tint =
-                        if(settings.getValid() && settings.getChanged()) MaterialTheme.colorScheme.onSurface
-                        else colorInactive
-                    )
-                }
-
-                IconButton(
-                    modifier = Modifier
-                        .height(40.dp),
-                    onClick = settings::onDiscardSettingsClick,
-                    enabled = settings.getChanged()
-                ) {
-                    Icon(
-                        modifier = Modifier,
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Discard",
-                        tint =
-                        if(settings.getChanged()) MaterialTheme.colorScheme.onSurface
+                        if(settingsViewModel.valid && settingsViewModel.changed) MaterialTheme.colorScheme.onSurface
                         else colorInactive
                     )
                 }
@@ -92,70 +101,27 @@ fun SettingsScreen(settings: SettingsViewModel) {
         Column(
             modifier = Modifier
                 .padding(10.dp)
-                .verticalScroll(settings.scrollState!!),
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            NamedGroup(title = "API and LLM settings", scrollable = false) {
-                NamedTextField(
-                    title = "API Endpoint",
-                    value = { settings.get(Setting.apiEndpoint) },
-                    onValueChange = settings::onApiEndpointType,
-                    placeholder = settings.getDefault(Setting.apiEndpoint),
-                )
-
-                NamedTextField(
-                    title = "Maximum tokens",
-                    value = { settings.get(Setting.maxTokens) },
-                    onValueChange = settings::onMaxTokensType,
-                    placeholder = settings.getDefault(Setting.maxTokens),
-                )
-
-                NamedTextField(
-                    title = "Repetition penalty",
-                    value = { settings.get(Setting.repetitionPenalty) },
-                    onValueChange = settings::onRepetitionPenaltyType,
-                    placeholder = settings.getDefault(Setting.repetitionPenalty),
-                )
-
-                NamedTextField(
-                    title = "Temperature",
-                    value = { settings.get(Setting.temperature) },
-                    onValueChange = settings::onTemperatureType,
-                    placeholder = settings.getDefault(Setting.temperature),
-                )
-
-                NamedTextField(
-                    title = "Top P",
-                    value = { settings.get(Setting.topP) },
-                    onValueChange = settings::onTopPType,
-                    placeholder = settings.getDefault(Setting.topP),
-                )
-            }
-
-            NamedGroup(title = "Dialogue settings", scrollable = false) {
-                NamedTextField(
-                    title = "User name",
-                    value = { settings.get(Setting.userName) },
-                    onValueChange = settings::onUserNameType,
-                    placeholder = settings.getDefault(Setting.userName),
-                )
-
-                NamedTextField(
-                    title = "Bot name",
-                    value = { settings.get(Setting.botName) },
-                    onValueChange = settings::onBotNameType,
-                    placeholder = settings.getDefault(Setting.botName),
-                )
-
-                NamedTextField(
-                    title = "Context",
-                    value = { settings.get(Setting.context) },
-                    onValueChange = settings::onContextType,
-                    placeholder = settings.getDefault(Setting.context),
-                    singleLine = false,
-                    minLines = 5,
-                    maxLines = 5
-                )
+            SettingCategory.values().forEach {category ->
+                NamedGroup(title = LocalContext.current.getString(category._name), scrollable = false) {
+                    Settings.values().filter {
+                        setting -> setting._category == category
+                    }.forEach { setting ->
+                        NamedTextField(
+                            title = LocalContext.current.getString(setting._description),
+                            value = { settingsViewModel.settings?.get(setting) ?: "" },
+                            onValueChange = { newText ->
+                                settingsViewModel.onSettingType(setting, newText)
+                            },
+                            placeholder = setting._default,
+                            minLines = if(setting._type != SettingType.text) 1 else 5,
+                            maxLines = if(setting._type != SettingType.text) 1 else 5,
+                            singleLine = setting._type != SettingType.text
+                        )
+                    }
+                }
             }
         }
     }
@@ -165,17 +131,18 @@ fun SettingsScreen(settings: SettingsViewModel) {
 @Preview
 fun ChatSettingsScreenPreview() {
     APIChatTheme {
-        val scope = rememberCoroutineScope()
-        val context = LocalContext.current
-
-        val settings = viewModel { SettingsViewModel(context, scope, {}) }
+        val settingsViewModel = viewModel { SettingsViewModel(
+            loadSettings = { mutableStateMapOf<Settings, String>() },
+            saveSettings = { _, _ -> },
+            navigateBack = {}
+        ) }
 
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ChatSettingsScreen(settings = settings)
+            SettingsScreen(settingsViewModel = settingsViewModel)
         }
     }
 }

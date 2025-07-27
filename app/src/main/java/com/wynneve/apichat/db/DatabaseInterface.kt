@@ -16,7 +16,7 @@ import com.wynneve.apichat.db.models.ProfileModel
 import com.wynneve.apichat.db.models.SettingModel
 
 @Database(
-    version = 1,
+    version = 3,
     entities = [
         DbSetting::class,
         DbProfile::class,

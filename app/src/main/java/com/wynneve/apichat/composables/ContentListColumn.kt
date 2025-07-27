@@ -1,5 +1,6 @@
 package com.wynneve.apichat.composables
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,10 +18,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ContentListColumn(
     scrollable: Boolean = true,
+    scrollState: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = if(scrollable) Modifier
+            .padding(all = 10.dp)
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surface,
@@ -28,8 +31,9 @@ fun ContentListColumn(
             )
             .padding(10.dp)
             .verticalScroll(
-                state = rememberScrollState()
+                state = scrollState
             ) else Modifier
+            .padding(all = 10.dp)
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surface,

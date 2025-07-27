@@ -8,12 +8,11 @@ import kotlinx.coroutines.flow.Flow
 object ChatSettingController {
     private val chatSettingModel: ChatSettingModel by lazy { ApplicationDatabase.database.getChatSettingDao() }
 
-    suspend fun createChatSetting(chatSetting: DbChatSetting): Boolean {
-        val result = chatSettingModel.createChatSetting(chatSetting)
-        return (result != 0L)
+    suspend fun createChatSetting(chatSetting: DbChatSetting): Long {
+        return chatSettingModel.createChatSetting(chatSetting)
     }
 
-    fun getChatSettingByUserAndId(chatId: Int, settingId: Int): Flow<DbChatSetting?> {
+    fun getChatSettingByChatAndId(chatId: Int, settingId: Int): Flow<DbChatSetting?> {
         return chatSettingModel.getChatSettingByChatAndId(chatId, settingId)
     }
 
@@ -22,7 +21,7 @@ object ChatSettingController {
         return (result != 0)
     }
 
-    suspend fun deleteChatSettingByUserAndId(chatId: Int, settingId: Int): Boolean {
+    suspend fun deleteChatSettingByChatAndId(chatId: Int, settingId: Int): Boolean {
         val result = chatSettingModel.deleteChatSettingByChatAndId(chatId, settingId)
         return (result != 0)
     }

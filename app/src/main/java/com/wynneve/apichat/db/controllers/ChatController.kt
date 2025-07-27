@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.Flow
 object ChatController {
     private val chatModel: ChatModel by lazy { ApplicationDatabase.database.getChatDao() }
 
-    suspend fun createChat(chat: DbChat): Boolean {
-        val result = chatModel.createChat(chat)
-        return (result != 0L)
+    suspend fun createChat(chat: DbChat): Long {
+        return chatModel.createChat(chat)
     }
 
     fun getChatById(id: Int): Flow<DbChat?> {

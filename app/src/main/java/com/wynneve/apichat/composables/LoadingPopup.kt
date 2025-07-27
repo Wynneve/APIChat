@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wynneve.apichat.ui.theme.colorShadow
+import com.wynneve.apichat.R
 
 // Expected to be called outside any container scopes!
 
@@ -33,7 +35,7 @@ fun LoadingPopup(loading: Boolean) {
                         shape = RoundedCornerShape(10.dp),
                     )
                     .padding(10.dp),
-                text = "Loading..."
+                text = LocalContext.current.getString(R.string.loading_Loading)
             )
         }
     }

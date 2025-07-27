@@ -28,30 +28,30 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.wynneve.apichat.Setting
-import com.wynneve.apichat.SettingsViewModel
 import com.wynneve.apichat.composables.HeaderRow
 import com.wynneve.apichat.composables.NamedTextField
 import com.wynneve.apichat.composables.NamedGroup
 import com.wynneve.apichat.ui.theme.APIChatTheme
 import com.wynneve.apichat.ui.theme.colorInactive
 import com.wynneve.apichat.ui.theme.colorLogout
+import com.wynneve.apichat.viewmodels.ProfileSettingsViewModel
+import com.wynneve.apichat.R
 
 @Composable
-fun ProfileSettingsScreen(settings: SettingsViewModel) {
-    settings.scrollState = rememberScrollState()
-
+fun ProfileSettingsScreen(profileSettingsViewModel: ProfileSettingsViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
     ) {
         HeaderRow(
-            title = "Settings",
+            title = LocalContext.current.getString(R.string.newProfile_Title),
             navigation = {
                 IconButton(
                     modifier = Modifier
                         .size(40.dp),
-                    onClick = {}
+                    onClick = {
+                        profileSettingsViewModel.navigateBack()
+                    }
                 ) {
                     Icon(
                         modifier = Modifier
@@ -66,31 +66,19 @@ fun ProfileSettingsScreen(settings: SettingsViewModel) {
                 IconButton(
                     modifier = Modifier
                         .height(40.dp),
-                    onClick = settings::onApplySettingsClick,
-                    enabled = settings.getValid() && settings.getChanged()
+                    onClick = {
+                        profileSettingsViewModel.onApplySettingsClick {
+
+                        }
+                    },
+                    enabled = profileSettingsViewModel.valid && profileSettingsViewModel.changed
                 ) {
                     Icon(
                         modifier = Modifier,
                         imageVector = Icons.Default.Check,
                         contentDescription = "Apply",
                         tint =
-                        if(settings.getValid() && settings.getChanged()) MaterialTheme.colorScheme.onSurface
-                        else colorInactive
-                    )
-                }
-
-                IconButton(
-                    modifier = Modifier
-                        .height(40.dp),
-                    onClick = settings::onDiscardSettingsClick,
-                    enabled = settings.getChanged()
-                ) {
-                    Icon(
-                        modifier = Modifier,
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Discard",
-                        tint =
-                        if(settings.getChanged()) MaterialTheme.colorScheme.onSurface
+                        if(profileSettingsViewModel.valid && profileSettingsViewModel.changed) MaterialTheme.colorScheme.onSurface
                         else colorInactive
                     )
                 }
@@ -100,22 +88,26 @@ fun ProfileSettingsScreen(settings: SettingsViewModel) {
         Column(
             modifier = Modifier
                 .padding(10.dp)
-                .verticalScroll(settings.scrollState!!),
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            NamedGroup(title = "Profile settings") {
+            NamedGroup(title = LocalContext.current.getString(R.string.profileSettings_ProfileSettings), scrollable = false) {
                 NamedTextField(
-                    title = "Login",
-                    value = { settings.get(Setting.userName) },
-                    onValueChange = settings::onUserNameType,
-                    placeholder = settings.getDefault(Setting.userName),
+                    title = LocalContext.current.getString(R.string.profileSettings_Login),
+                    value = { profileSettingsViewModel.login },
+                    onValueChange = { newText ->
+                        profileSettingsViewModel.onLoginType(newText)
+                    },
+                    placeholder = LocalContext.current.getString(R.string.profileSettings_Login),
                 )
 
                 NamedTextField(
-                    title = "Password",
-                    value = { settings.get(Setting.botName) },
-                    onValueChange = settings::onBotNameType,
-                    placeholder = settings.getDefault(Setting.botName),
+                    title = LocalContext.current.getString(R.string.profileSettings_Password),
+                    value = { profileSettingsViewModel.password },
+                    onValueChange = { newText ->
+                        profileSettingsViewModel.onPasswordType(newText)
+                    },
+                    placeholder = LocalContext.current.getString(R.string.profileSettings_Password),
                     visualTransformation = PasswordVisualTransformation()
                 )
             }
@@ -127,10 +119,12 @@ fun ProfileSettingsScreen(settings: SettingsViewModel) {
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                 ),
-                onClick = {}
+                onClick = {
+                    profileSettingsViewModel.navigateToProfiles()
+                }
             ) {
                 Text(
-                    text = "Log out",
+                    text = LocalContext.current.getString(R.string.profileSettings_LogOut),
                     style = MaterialTheme.typography.displayMedium.copy(color = colorLogout)
                 )
             }
@@ -145,14 +139,19 @@ fun ProfileSettingsScreenPreview() {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
-        val settings = viewModel { SettingsViewModel(context, scope, {}) }
+        val profileSettings = viewModel { ProfileSettingsViewModel(
+            { },
+            { _, _ -> },
+            {},
+            {}
+        ) }
 
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ProfileSettingsScreen(settings = settings)
+            ProfileSettingsScreen(profileSettingsViewModel = profileSettings)
         }
     }
 }

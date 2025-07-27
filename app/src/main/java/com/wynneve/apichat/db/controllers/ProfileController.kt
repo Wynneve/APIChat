@@ -11,9 +11,8 @@ import kotlinx.coroutines.flow.Flow
 object ProfileController {
     private val profileModel: ProfileModel by lazy { ApplicationDatabase.database.getProfileDao() }
 
-    suspend fun createProfile(profile: DbProfile): Boolean {
-        val result = profileModel.createProfile(profile)
-        return (result != 0L)
+    suspend fun createProfile(profile: DbProfile): Long {
+        return profileModel.createProfile(profile)
     }
 
     fun getProfileById(id: Int): Flow<DbProfile?> {

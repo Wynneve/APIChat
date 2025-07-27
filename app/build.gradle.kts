@@ -1,3 +1,8 @@
+import org.jetbrains.kotlin.fir.expressions.FirEmptyArgumentList.arguments
+import org.jetbrains.kotlin.fir.resolve.calls.ResolvedCallArgument.DefaultArgument.arguments
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCallArgument.DefaultArgument.arguments
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.apichat"
+    namespace = "com.wynneve.apichat"
     compileSdk = 33
 
     defaultConfig {
@@ -19,15 +24,19 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-//
-//        ksp {
-//            arguments { arg("room.schemaLocation", "$projectDir/schemas") }
-//        }
+        signingConfig = signingConfigs.getByName("debug")
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            //isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -75,9 +84,14 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.5.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    ksp("com.squareup.retrofit2:response-type-keeper:+")
 
-    //implementation("androidx.navigation:navigation-compose:2.5.0")
     implementation("com.google.accompanist:accompanist-navigation-animation:0.29.0-alpha")
+    implementation("com.google.accompanist:accompanist-permissions:0.29.0-alpha")
+
+    implementation("androidx.camera:camera-camera2:1.1.0")
+    implementation("androidx.camera:camera-lifecycle:1.1.0")
+    implementation("androidx.camera:camera-view:1.0.0-alpha29")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
@@ -86,4 +100,5 @@ dependencies {
     implementation("androidx.room:room-runtime:2.5.2")
     ksp("androidx.room:room-compiler:2.5.2")
     implementation("androidx.room:room-ktx:2.5.2")
+    implementation(kotlin("reflect"))
 }

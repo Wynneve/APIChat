@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +58,7 @@ import com.wynneve.apichat.db.entities.DbProfile
 import com.wynneve.apichat.ui.theme.APIChatTheme
 import com.wynneve.apichat.ui.theme.colorShadow
 import com.wynneve.apichat.viewmodels.ProfilesViewModel
+import com.wynneve.apichat.R
 
 @Composable
 fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
@@ -76,7 +79,7 @@ fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
             .background(color = MaterialTheme.colorScheme.background),
     ) {
         HeaderRow(
-            title = "Profiles",
+            title = LocalContext.current.getString(R.string.profiles_Title),
             actions = {
                 IconButton(
                     modifier = Modifier
@@ -103,22 +106,11 @@ fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
 
         if(profiles.isEmpty()) return
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    top = 10.dp,
-                    bottom = 10.dp,
-                    start = 10.dp,
-                    end = 10.dp
-                )
-        ) {
-            ContentListColumn {
-                for(profile in profiles) {
-                    ProfileEntry(profile) {
-                        profilesViewModel.selectedProfile = profile
-                        loggingIn = true
-                    }
+        ContentListColumn {
+            for(profile in profiles) {
+                ProfileEntry(profile) {
+                    profilesViewModel.selectedProfile = profile
+                    loggingIn = true
                 }
             }
         }
@@ -126,8 +118,7 @@ fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
 
     val animatedColor by animateColorAsState(
         targetValue = if(loggingIn) colorShadow else Color.Transparent,
-        label = "shadow",
-        animationSpec = tween(durationMillis = 500)
+        animationSpec = tween(durationMillis = 250, easing = LinearEasing)
     )
     if(loggingIn) Box(
         modifier = Modifier
@@ -156,8 +147,8 @@ fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
                 )
 
                 NamedTextField(
-                    title = "Enter the password:",
-                    placeholder = "Password",
+                    title = LocalContext.current.getString(R.string.profiles_EnterPassword),
+                    placeholder = LocalContext.current.getString(R.string.profiles_Password),
                     value = { profilesViewModel.password },
                     onValueChange = { profilesViewModel.password = it },
                     visualTransformation = PasswordVisualTransformation()
@@ -165,6 +156,7 @@ fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
 
                 Spacer(modifier = Modifier)
 
+                val invalidPassword = LocalContext.current.getString(R.string.profiles_InvalidPassword)
                 Button(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
@@ -180,13 +172,13 @@ fun ProfilesScreen(profilesViewModel: ProfilesViewModel) {
                             profilesViewModel.password = ""
                         } , failureCallback = {
                             navigationEnabled = true
-                            Toast.makeText(context, "Invalid password.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, invalidPassword, Toast.LENGTH_LONG).show()
                         })
                     },
                     enabled = navigationEnabled
                 ) {
                     Text(
-                        text = "Log in",
+                        text = LocalContext.current.getString(R.string.profiles_LogIn),
                         style = MaterialTheme.typography.displayMedium
                     )
                 }

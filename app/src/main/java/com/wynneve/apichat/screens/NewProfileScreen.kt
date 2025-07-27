@@ -20,11 +20,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,11 +36,17 @@ import com.wynneve.apichat.composables.LoadingPopup
 import com.wynneve.apichat.composables.NamedTextField
 import com.wynneve.apichat.ui.theme.APIChatTheme
 import com.wynneve.apichat.viewmodels.NewProfileViewModel
+import kotlinx.coroutines.delay
+import com.wynneve.apichat.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewProfileScreen(newProfileViewModel: NewProfileViewModel) {
     var navigationEnabled by remember { mutableStateOf(true) }
+    LaunchedEffect(navigationEnabled) {
+        delay(1000)
+        navigationEnabled = true
+    }
 
     Column(
         modifier = Modifier
@@ -46,16 +54,14 @@ fun NewProfileScreen(newProfileViewModel: NewProfileViewModel) {
             .background(color = MaterialTheme.colorScheme.background),
     ) {
         HeaderRow(
-            title = "New profile",
+            title = LocalContext.current.getString(R.string.newProfile_Title),
             navigation = {
                 IconButton(
                     modifier = Modifier
                         .fillMaxHeight(),
                     onClick = {
                         navigationEnabled = false
-                        newProfileViewModel.navigateBack {
-                            navigationEnabled = true
-                        }
+                        newProfileViewModel.navigateBack()
                     },
                     enabled = navigationEnabled
                 ) {
@@ -78,14 +84,14 @@ fun NewProfileScreen(newProfileViewModel: NewProfileViewModel) {
         ) {
             ContentListColumn {
                 NamedTextField(
-                    title = "Login",
-                    placeholder = "Login",
+                    title = LocalContext.current.getString(R.string.newProfile_Login),
+                    placeholder = LocalContext.current.getString(R.string.newProfile_Login),
                     value = { newProfileViewModel.login },
                     onValueChange = newProfileViewModel::loginType,
                 )
                 NamedTextField(
-                    title = "Password",
-                    placeholder = "Password",
+                    title = LocalContext.current.getString(R.string.newProfile_Password),
+                    placeholder = LocalContext.current.getString(R.string.newProfile_Password),
                     value = { newProfileViewModel.password },
                     onValueChange = newProfileViewModel::passwordType,
                     visualTransformation = PasswordVisualTransformation()
@@ -103,7 +109,7 @@ fun NewProfileScreen(newProfileViewModel: NewProfileViewModel) {
                     onClick = newProfileViewModel::createProfileClick
                 ) {
                     Text(
-                        text = "Create",
+                        text = LocalContext.current.getString(R.string.newProfile_Create),
                         style = MaterialTheme.typography.displayMedium
                     )
                 }
@@ -119,8 +125,8 @@ fun NewProfileScreen(newProfileViewModel: NewProfileViewModel) {
 fun NewProfileScreenPreview() {
     APIChatTheme {
         val newProfileViewModel = NewProfileViewModel(
-            navigateBack = { _ -> },
             navigateToChats = { _, _ -> },
+            navigateBack = { },
         )
 
         NewProfileScreen(newProfileViewModel = newProfileViewModel)

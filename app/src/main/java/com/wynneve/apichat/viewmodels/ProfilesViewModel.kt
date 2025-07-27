@@ -1,13 +1,18 @@
 package com.wynneve.apichat.viewmodels;
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.viewModelScope
+import com.wynneve.apichat.db.Settings
+import com.wynneve.apichat.db.controllers.GlobalSettingController
 import com.wynneve.apichat.db.controllers.ProfileController
+import com.wynneve.apichat.db.controllers.SettingController
+import com.wynneve.apichat.db.entities.DbGlobalSetting
 import com.wynneve.apichat.db.entities.DbProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -18,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@Stable
 class ProfilesViewModel(
     val navigateToNewProfile: (callback: () -> Unit) -> Unit,
     val navigateToChats: (id: Int, callback: () -> Unit) -> Unit
@@ -40,8 +46,28 @@ class ProfilesViewModel(
     }
 
     fun loginClick(successCallback: () -> Unit, failureCallback: () -> Unit) {
-        if(selectedProfile!!.login == password) {
-            navigateToChats(selectedProfile!!.id, successCallback)
+        if(selectedProfile!!.password == password) {
+            synced = false
+
+            viewModelScope.launch(Dispatchers.IO) {
+                Settings.values().forEach {setting ->
+                    if(GlobalSettingController.getGlobalSettingByProfileAndId(
+                        selectedProfile!!.id,
+                        SettingController.settingsIds[setting]!!
+                    ).first() == null) {
+                        async { GlobalSettingController.createGlobalSetting(DbGlobalSetting(
+                            selectedProfile!!.id,
+                            SettingController.settingsIds[setting]!!,
+                            setting._default
+                        )) }.await()
+                    }
+                }
+
+                viewModelScope.launch(Dispatchers.Main) {
+                    synced = true
+                    navigateToChats(selectedProfile!!.id, successCallback)
+                }
+            }
         } else {
             failureCallback()
         }

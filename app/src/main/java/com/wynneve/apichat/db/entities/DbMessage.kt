@@ -9,21 +9,22 @@ import androidx.room.PrimaryKey
     ForeignKey(
         entity = DbChat::class,
         parentColumns = ["id"],
-        childColumns = ["chat_id"]
+        childColumns = ["chat_id"],
+        onDelete = ForeignKey.CASCADE
     )
 ])
 data class DbMessage(
     @PrimaryKey(autoGenerate=true)
     @ColumnInfo(name="id")
     val id: Int = 0,
-    @ColumnInfo(name="chat_id")
+    @ColumnInfo(name="chat_id", index=true)
     val chatId: Int,
     @ColumnInfo(name="role")
     val role: String,
     @ColumnInfo(name="timestamp")
-    val timestamp: Long,
+    var timestamp: Long,
     @ColumnInfo(name="content")
-    val content: String,
+    var content: String,
     @ColumnInfo(name="image")
-    val image: String?
+    var image: String?
 )

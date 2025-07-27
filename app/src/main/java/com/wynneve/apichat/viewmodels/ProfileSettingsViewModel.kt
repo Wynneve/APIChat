@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.viewModelScope
 import com.wynneve.apichat.db.Settings
@@ -24,52 +25,46 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Stable
-class ProfilesViewModel(
-    val navigateToNewProfile: (callback: () -> Unit) -> Unit,
-    val navigateToChats: (id: Int, callback: () -> Unit) -> Unit
+class ProfileSettingsViewModel(
+    val loadProfile: (callback: (profile: DbProfile) -> Unit) -> Unit,
+    val saveProfile: (profile: DbProfile, callback: () -> Unit) -> Unit,
+    val navigateToProfiles: () -> Unit,
+    val navigateBack: () -> Unit,
 ): ViewModel() {
-    private val _profiles = MutableStateFlow<List<DbProfile>>(emptyList())
-    val profiles: StateFlow<List<DbProfile>> = _profiles // ???
-    var synced by mutableStateOf(false)
-
-    var selectedProfile by mutableStateOf<DbProfile?>(null)
+    var profile: DbProfile? = null
+    var login by mutableStateOf("")
     var password by mutableStateOf("")
 
+    var synced by mutableStateOf(false)
+
+    var valid by mutableStateOf(true)
+    var changed by mutableStateOf(false)
+
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            ProfileController.getProfiles().collect { profiles ->
-                viewModelScope.launch(Dispatchers.Main) { synced = false }
-                async { _profiles.emit(profiles) }.await()
-                viewModelScope.launch(Dispatchers.Main) { synced = true }
-            }
+        loadProfile { profile ->
+            this.profile = profile
+            this.login = profile.login
+            this.password = profile.password
+            println("loaded")
         }
     }
 
-    fun loginClick(successCallback: () -> Unit, failureCallback: () -> Unit) {
-        if(selectedProfile!!.login == password) {
-            synced = false
+    fun onApplySettingsClick(callback: () -> Unit) {
+        saveProfile(profile!!, callback)
+        changed = false
+    }
 
-            viewModelScope.launch(Dispatchers.IO) {
-                Settings.values().forEach {setting ->
-                    if(GlobalSettingController.getGlobalSettingByUserAndId(
-                        selectedProfile!!.id,
-                        SettingController.settingsIds[setting]!!
-                    ).first() == null) {
-                        async { GlobalSettingController.createGlobalSetting(DbGlobalSetting(
-                            selectedProfile!!.id,
-                            SettingController.settingsIds[setting]!!,
-                            setting._default
-                        )) }.await()
-                    }
-                }
+    fun onLoginType(newText: String) {
+        profile!!.login = newText
+        login = newText
+        changed = true
+        if(newText.isBlank()) valid = false
+    }
 
-                viewModelScope.launch(Dispatchers.Main) {
-                    synced = true
-                    navigateToChats(selectedProfile!!.id, successCallback)
-                }
-            }
-        } else {
-            failureCallback()
-        }
+    fun onPasswordType(newText: String) {
+        profile!!.password = newText
+        password = newText
+        changed = true
+        if(newText.isBlank()) valid = false
     }
 }

@@ -9,12 +9,14 @@ import androidx.room.ForeignKey
         ForeignKey(
             entity = DbProfile::class,
             parentColumns = ["id"],
-            childColumns = ["profile_id"]
+            childColumns = ["profile_id"],
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbSetting::class,
             parentColumns = ["id"],
-            childColumns = ["setting_id"]
+            childColumns = ["setting_id"],
+            onDelete = ForeignKey.CASCADE
         ),
     ],
     primaryKeys = [
@@ -24,7 +26,7 @@ import androidx.room.ForeignKey
 data class DbGlobalSetting(
     @ColumnInfo(name="profile_id")
     val profileId: Int,
-    @ColumnInfo(name="setting_id")
+    @ColumnInfo(name="setting_id", index=true)
     val settingId: Int,
     @ColumnInfo(name="value")
     val value: String,

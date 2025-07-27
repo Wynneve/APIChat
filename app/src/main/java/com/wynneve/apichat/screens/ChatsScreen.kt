@@ -1,8 +1,15 @@
 package com.wynneve.apichat.screens
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
@@ -29,15 +37,22 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.wynneve.apichat.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wynneve.apichat.composables.ContentListColumn
 import com.wynneve.apichat.composables.HeaderRow
+import com.wynneve.apichat.composables.LoadingPopup
 import com.wynneve.apichat.composables.NamedTextField
 import com.wynneve.apichat.db.entities.DbChat
 import com.wynneve.apichat.ui.theme.APIChatTheme
@@ -46,24 +61,28 @@ import com.wynneve.apichat.ui.theme.colorShadow
 import com.wynneve.apichat.viewmodels.ChatsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatsScreen(chatsViewModel: ChatsViewModel) {
-    val isInEditMode = remember { mutableStateOf(false) }
+    val chats by chatsViewModel.chats.collectAsState(initial = emptyList())
+
+    BackHandler(enabled = chatsViewModel.isEditing) {
+        chatsViewModel.isEditing = false
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background),
     ) {
+        val newChat = LocalContext.current.getString(R.string.chats_NewChat)
         HeaderRow(
-            title = "Chats",
+            title = LocalContext.current.getString(R.string.chats_Title),
             actions = {
-                if (!isInEditMode.value) {
+                if (!chatsViewModel.isEditing) {
                     IconButton(
                         modifier = Modifier
                             .size(40.dp),
-                        onClick = {}
+                        onClick = { chatsViewModel.createChat(newChat) }
                     ) {
                         Icon(
                             modifier = Modifier
@@ -80,7 +99,9 @@ fun ChatsScreen(chatsViewModel: ChatsViewModel) {
                     IconButton(
                         modifier = Modifier
                             .size(40.dp),
-                        onClick = { isInEditMode.value = !isInEditMode.value }
+                        onClick = {
+                            chatsViewModel.navigateToSettings()
+                        }
                     ) {
                         Icon(
                             modifier = Modifier
@@ -91,32 +112,46 @@ fun ChatsScreen(chatsViewModel: ChatsViewModel) {
                             contentDescription = "",
                         )
                     }
-                } else null
+                } else {
+                    IconButton(
+                        modifier = Modifier
+                            .size(40.dp),
+                        onClick = { chatsViewModel.isEditing = false }
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "",
+                        )
+                    }
+                }
             }
         )
 
-        val chats = Array<DbChat>(20) {
-                index -> DbChat(index, 0, "chat${index}", 0L)
-        }
-
         if(chats.isEmpty()) return
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 10.dp)
-        ) {
-            ContentListColumn {
-                for(chat in chats) {
-                    ChatEntry(chat, {}, isInEditMode.value)
-                }
+        ContentListColumn {
+            for(chat in chats) {
+                ChatEntry(
+                    chat = chat,
+                    chatsViewModel = chatsViewModel
+                )
             }
         }
     }
+
+    LoadingPopup(!chatsViewModel.synced)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatEntry(chat: DbChat, onClick: () -> Unit, isInEditMode: Boolean) {
+fun ChatEntry(
+    chat: DbChat,
+    chatsViewModel: ChatsViewModel,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,7 +160,16 @@ fun ChatEntry(chat: DbChat, onClick: () -> Unit, isInEditMode: Boolean) {
                 shape = RoundedCornerShape(5.dp)
             )
             .height(40.dp)
-            .clickable(onClick = onClick),
+            .combinedClickable(
+                onClick = {
+                    if (!chatsViewModel.isEditing) {
+                        chatsViewModel.navigateToChat(chat.id) {}
+                    }
+                },
+                onLongClick = {
+                    chatsViewModel.isEditing = true
+                }
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -136,25 +180,34 @@ fun ChatEntry(chat: DbChat, onClick: () -> Unit, isInEditMode: Boolean) {
             text = chat.title
         )
 
-        IconButton(
-            modifier = Modifier
-                .padding(end = 5.dp)
-                .size(25.dp),
-            onClick = {}
-        ) {
-            if(isInEditMode) {
+        val alpha by animateFloatAsState(
+            targetValue = if(chatsViewModel.isEditing) 1f else 0f,
+            animationSpec = tween(durationMillis = 500)
+        )
+
+        Crossfade(targetState = chatsViewModel.isEditing) {
+            if (it) IconButton(
+                modifier = Modifier
+                    .padding(end = 5.dp)
+                    .size(25.dp),
+                onClick = { chatsViewModel.deleteChat(chat.id) }
+            ) {
                 Icon(
                     modifier = Modifier
                         .size(25.dp),
-                    tint = colorDelete,
+                    tint = colorDelete.copy(alpha = alpha),
                     imageVector = Icons.Default.Delete,
                     contentDescription = "",
                 )
-            } else {
+            } else Box(
+                modifier = Modifier
+                    .padding(end = 5.dp)
+                    .size(25.dp),
+            ) {
                 Icon(
                     modifier = Modifier
                         .size(25.dp),
-                    tint = MaterialTheme.colorScheme.onBackground,
+                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f - alpha),
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "",
                 )
@@ -169,7 +222,8 @@ fun ChatsScreenPreview() {
     APIChatTheme {
         val viewModel = ChatsViewModel(
             profileId = 0,
-            navigateToChat = { _, _ -> }
+            navigateToChat = { _, _ -> },
+            navigateToSettings = {}
         )
 
         ChatsScreen(viewModel)

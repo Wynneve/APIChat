@@ -9,12 +9,14 @@ import androidx.room.ForeignKey
         ForeignKey(
             entity = DbChat::class,
             parentColumns = ["id"],
-            childColumns = ["chat_id"]
+            childColumns = ["chat_id"],
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbSetting::class,
             parentColumns = ["id"],
-            childColumns = ["setting_id"]
+            childColumns = ["setting_id"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
     primaryKeys = [
@@ -24,7 +26,7 @@ import androidx.room.ForeignKey
 data class DbChatSetting(
     @ColumnInfo(name="chat_id")
     val chatId: Int,
-    @ColumnInfo(name="setting_id")
+    @ColumnInfo(name="setting_id", index=true)
     val settingId: Int,
     @ColumnInfo(name="value")
     val value: String,

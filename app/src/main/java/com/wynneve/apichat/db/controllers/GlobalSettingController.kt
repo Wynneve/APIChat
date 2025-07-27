@@ -8,12 +8,11 @@ import kotlinx.coroutines.flow.Flow
 object GlobalSettingController {
     private val globalSettingModel: GlobalSettingModel by lazy { ApplicationDatabase.database.getGlobalSettingDao() }
 
-    suspend fun createGlobalSetting(globalSetting: DbGlobalSetting): Boolean {
-        val result = globalSettingModel.createGlobalSetting(globalSetting)
-        return (result != 0L)
+    suspend fun createGlobalSetting(globalSetting: DbGlobalSetting): Long {
+        return globalSettingModel.createGlobalSetting(globalSetting)
     }
 
-    fun getGlobalSettingByUserAndId(profileId: Int, settingId: Int): Flow<DbGlobalSetting?> {
+    fun getGlobalSettingByProfileAndId(profileId: Int, settingId: Int): Flow<DbGlobalSetting?> {
         return globalSettingModel.getGlobalSettingByProfileAndId(profileId, settingId)
     }
 

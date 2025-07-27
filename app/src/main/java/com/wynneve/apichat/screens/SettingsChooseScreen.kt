@@ -2,6 +2,7 @@ package com.wynneve.apichat.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,28 +23,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wynneve.apichat.composables.ContentListColumn
 import com.wynneve.apichat.composables.HeaderRow
 import com.wynneve.apichat.ui.theme.APIChatTheme
+import com.wynneve.apichat.R
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsChooseScreen() {
+fun SettingsChooseScreen(
+    navigateToProfileSettings: () -> Unit,
+    navigateToGlobalSettings:  () -> Unit,
+    navigateBack:              () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background),
     ) {
         HeaderRow(
-            title = "Settings",
+            title = LocalContext.current.getString(R.string.settingsChoose_Title),
             navigation = {
                 IconButton(
                     modifier = Modifier
                         .size(40.dp),
-                    onClick = {}
+                    onClick = {
+                        navigateBack()
+                    }
                 ) {
                     Icon(
                         modifier = Modifier
@@ -67,16 +76,20 @@ fun SettingsChooseScreen() {
                 )
         ) {
             ContentListColumn {
-                SettingEntry("Profile settings", {})
+                ClickableEntry(LocalContext.current.getString(R.string.settingsChoose_ProfileSettings)) {
+                    navigateToProfileSettings()
+                }
 
-                SettingEntry("Global chat settings", {})
+                ClickableEntry(LocalContext.current.getString(R.string.settingsChoose_GlobalSettings)) {
+                    navigateToGlobalSettings()
+                }
             }
         }
     }
 }
 
 @Composable
-fun SettingEntry(text: String, onClick: () -> Unit) {
+fun ClickableEntry(text: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,7 +97,10 @@ fun SettingEntry(text: String, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(5.dp)
             )
-            .height(40.dp),
+            .height(40.dp)
+            .clickable {
+                onClick()
+            },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -110,6 +126,8 @@ fun SettingEntry(text: String, onClick: () -> Unit) {
 @Composable
 fun SettingsChooseScreenPreview() {
     APIChatTheme {
-        SettingsChooseScreen()
+        SettingsChooseScreen(
+            {}, {}, {}
+        )
     }
 }

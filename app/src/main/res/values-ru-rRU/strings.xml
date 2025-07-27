@@ -1,7 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">API Chat</string>
-    <string name="chat_SendMessage">Отправить</string>
-    <string name="chat_IsTyping">печатает...</string>
+    <string name="chat_Typing">Печатает</string>
+    <string name="chat_SelectSource">Выберите источник:</string>
+    <string name="chat_Gallery">Галерея</string>
+    <string name="chat_Camera">Камера</string>
+    <string name="chats_Title">Чаты</string>
+    <string name="chats_NewChat">Новый чат</string>
     <string name="chat_Message">Сообщение</string>
+    <string name="loading_Loading">Загрузка...</string>
+    <string name="newProfile_Title">Новый профиль</string>
+    <string name="newProfile_Login">Логин</string>
+    <string name="newProfile_Password">Пароль</string>
+    <string name="newProfile_Create">Создать</string>
+    <string name="profileSettings_Title">Настройки</string>
+    <string name="profileSettings_ProfileSettings">Настройки профиля</string>
+    <string name="profileSettings_Login">Логин</string>
+    <string name="profileSettings_Password">Пароль</string>
+    <string name="profileSettings_LogOut">Выйти</string>
+    <string name="profiles_Title">Профили</string>
+    <string name="profiles_EnterPassword">Введите пароль:</string>
+    <string name="profiles_Password">Пароль</string>
+    <string name="profiles_InvalidPassword">Неверный пароль.</string>
+    <string name="profiles_LogIn">Войти</string>
+    <string name="settings_RequestSettings">Настройки запроса</string>
+    <string name="settings_GenerationSettings">Настройки генерации</string>
+    <string name="settings_DialogueSettings">Настройки диалога</string>
+    <string name="settings_ApiEndpoint">Эндпоинт API</string>
+    <string name="settings_BeginningTemplate">Шаблон начала</string>
+    <string name="settings_MessageTemplate">Шаблон сообщения</string>
+    <string name="settings_UserName">Имя пользователя</string>
+    <string name="settings_AssistantName">Имя ассистента</string>
+    <string name="settings_SystemName">Имя системы</string>
+    <string name="settings_MaxTokens">Количество генерируемых токенов</string>
+    <string name="settings_RepetitionPenalty">Штраф за повторения</string>
+    <string name="settings_Temperature">Температура</string>
+    <string name="settings_TopP">Top P</string>
+    <string name="settings_Context">Контекст диалога</string>
+    <string name="settingsChoose_Title">Настройки</string>
+    <string name="settingsChoose_ProfileSettings">Настройки профиля</string>
+    <string name="settingsChoose_GlobalSettings">Глобальные настройки</string>
+    <string name="settings_Title">Настройки</string>
 </resources>

@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.Flow
 object MessageController {
     private val messageModel: MessageModel by lazy { ApplicationDatabase.database.getMessageDao() }
 
-    suspend fun createMessage(message: DbMessage): Boolean {
-        val result = messageModel.createMessage(message)
-        return (result != 0L)
+    suspend fun createMessage(message: DbMessage): Long {
+        return messageModel.createMessage(message)
     }
 
     fun getMessageById(id: Int): Flow<DbMessage?> {

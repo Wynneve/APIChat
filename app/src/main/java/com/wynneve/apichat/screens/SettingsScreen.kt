@@ -23,8 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.wynneve.apichat.Setting
-import com.wynneve.apichat.SettingsViewModel
 import com.wynneve.apichat.composables.HeaderRow
 import com.wynneve.apichat.composables.NamedGroup
 import com.wynneve.apichat.composables.NamedTextField
@@ -32,7 +30,7 @@ import com.wynneve.apichat.ui.theme.APIChatTheme
 import com.wynneve.apichat.ui.theme.colorInactive
 
 @Composable
-fun ChatSettingsScreen(settings: SettingsViewModel) {
+fun SettingsScreen(settings: SettingsViewModel) {
     settings.scrollState = rememberScrollState()
 
     Column(
